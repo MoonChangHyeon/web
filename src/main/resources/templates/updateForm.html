@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Update Message</title>
+    <div th:replace="fragments/header :: header-meta"></div>
+</head>
+<body>
+    <div th:replace="fragments/header :: navbar"></div>
+    <div class="container">
+        <h1 class="mt-5">Update Message</h1>
+        <form th:action="@{/update/{id}(id=${message.id})}" method="post" th:object="${message}">
+            <div class="mb-3">
+                <label for="text" class="form-label">Message</label>
+                <input type="text" class="form-control" id="text" name="text" th:field="*{text}" required>
+                <div class="text-danger" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="/" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

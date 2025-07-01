@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header-meta"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+<div class="container">
+    <h1 th:if="${configuration.id == null}">New Report Configuration</h1>
+    <h1 th:if="${configuration.id != null}">Edit Report Configuration</h1>
+    <form th:object="${configuration}" th:action="${configuration.id == null} ? @{/report-configurations} : @{/report-configurations/update/{id}(id=${configuration.id})}" method="post">
+        <div class="form-group">
+            <label for="name">Configuration Name</label>
+            <input type="text" class="form-control" id="name" th:field="*{name}">
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </div>
+        <div class="form-group">
+            <label for="format">Format</label>
+            <select class="form-control" id="format" th:field="*{format}">
+                <option value="pdf">PDF</option>
+                <option value="xml">XML</option>
+            </select>
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('format')}" th:errors="*{format}"></div>
+        </div>
+        <div class="form-group">
+            <label for="outputFilename">Output Filename</label>
+            <input type="text" class="form-control" id="outputFilename" th:field="*{outputFilename}">
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('outputFilename')}" th:errors="*{outputFilename}"></div>
+        </div>
+        <div class="form-group">
+            <label for="sourceFprPath">Source FPR Path</label>
+            <input type="text" class="form-control" id="sourceFprPath" th:field="*{sourceFprPath}">
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('sourceFprPath')}" th:errors="*{sourceFprPath}"></div>
+        </div>
+        <div class="form-group">
+            <label for="template">Template (Optional)</label>
+            <select class="form-control" id="template" th:field="*{template}">
+                <option value="">-- Select Template --</option>
+                <option th:each="templateFile : ${templates}" th:value="${templateFile}" th:text="${templateFile}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="user">User (Optional)</label>
+            <input type="text" class="form-control" id="user" th:field="*{user}">
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="showRemoved" th:field="*{showRemoved}">
+            <label class="form-check-label" for="showRemoved">Show Removed Issues</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="showSuppressed" th:field="*{showSuppressed}">
+            <label class="form-check-label" for="showSuppressed">Show Suppressed Issues</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="showHidden" th:field="*{showHidden}">
+            <label class="form-check-label" for="showHidden">Show Hidden Issues</label>
+        </div>
+        <div class="form-group">
+            <label for="filterSet">Filter Set (Optional)</label>
+            <input type="text" class="form-control" id="filterSet" th:field="*{filterSet}">
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="/report-configurations" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+</body>
+</html>

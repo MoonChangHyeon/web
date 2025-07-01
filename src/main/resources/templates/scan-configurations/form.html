@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header-meta"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+<div class="container">
+    <h1 th:if="${configuration.id == null}">New Scan Configuration</h1>
+    <h1 th:if="${configuration.id != null}">Edit Scan Configuration</h1>
+    <form th:object="${configuration}" th:action="${configuration.id == null} ? @{/scan-configurations} : @{/scan-configurations/update/{id}(id=${configuration.id})}" method="post">
+        <div class="form-group">
+            <label for="buildId">Build ID</label>
+            <input type="text" class="form-control" id="buildId" th:field="*{buildId}">
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('buildId')}" th:errors="*{buildId}"></div>
+        </div>
+        <div class="form-group">
+            <label for="classPath">Classpath</label>
+            <input type="text" class="form-control" id="classPath" th:field="*{classPath}">
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('classPath')}" th:errors="*{classPath}"></div>
+        </div>
+        <div class="form-group">
+            <label for="filesToScan">Files to Scan</label>
+            <input type="text" class="form-control" id="filesToScan" th:field="*{filesToScan}">
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('filesToScan')}" th:errors="*{filesToScan}"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="/scan-configurations" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+</body>
+</html>

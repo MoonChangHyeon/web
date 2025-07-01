@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header-meta"></head>
+<body>
+<nav th:replace="fragments/header :: navbar"></nav>
+<div class="container">
+    <h1>Scan Configurations</h1>
+    <a href="/scan-configurations/new" class="btn btn-primary mb-3">Add New Configuration</a>
+    <div th:if="${scanResult}" class="alert alert-info">
+        <h2>Scan Result</h2>
+        <pre th:text="${scanResult}"></pre>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Build ID</th>
+            <th>Classpath</th>
+            <th>Files to Scan</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="config : ${configurations}">
+            <td th:text="${config.buildId}"></td>
+            <td th:text="${config.classPath}"></td>
+            <td th:text="${config.filesToScan}"></td>
+            <td>
+                <a th:href="@{/scan-configurations/edit/{id}(id=${config.id})}" class="btn btn-sm btn-info">Edit</a>
+                <form th:action="@{/scan-configurations/delete/{id}(id=${config.id})}" method="post" style="display:inline-block;">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+                <form th:action="@{/scan-configurations/run/{id}(id=${config.id})}" method="post" style="display:inline-block;">
+                    <button type="submit" class="btn btn-sm btn-success">Run Scan</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

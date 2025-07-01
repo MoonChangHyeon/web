@@ -1,0 +1,85 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.13'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.fortify.web'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+ext {
+    fortifySourceAnalyzerPath = '/Users/munchanghyeon/Documents/Workspce/SCA/24.4/bin/sourceanalyzer'
+    fortifyOutputFpr = layout.buildDirectory.file('reports/fortify/fortify-results.fpr').get().asFile.absolutePath
+}
+
+// Fortify SCA 관련 태스크 정의
+tasks.register('fortifyClean', Exec) {
+    description = 'Cleans Fortify SCA build files.'
+    commandLine fortifySourceAnalyzerPath, '-b', project.hasProperty('buildId') ? project.property('buildId') : 'default_build_id', '-clean'
+    doLast {
+        println "Fortify SCA build files cleaned for build ID: ${project.hasProperty('buildId') ? project.property('buildId') : 'default_build_id'}"
+    }
+}
+
+tasks.register('fortifyTranslate', Exec) {
+    description = 'Translates source code for Fortify SCA analysis.'
+    dependsOn 'jar' // Ensure the project is built before translation
+
+    // Default values for properties if not provided
+    def buildId = project.hasProperty('buildId') ? project.property('buildId') : 'default_build_id'
+    def classpath = project.hasProperty('classpath') ? project.property('classpath') : ''
+    def filesToAnalyze = project.hasProperty('filesToAnalyze') ? project.property('filesToAnalyze') : 'src/main/java' // Default to main Java sources
+
+    commandLine fortifySourceAnalyzerPath, '-b', buildId, '-Xmx4G', '-source', '21', '-cp', classpath, filesToAnalyze
+    doLast {
+        println "Fortify SCA translation completed for build ID: ${buildId}"
+    }
+}
+
+tasks.register('fortifyScan', Exec) {
+    description = 'Performs Fortify SCA scan and generates FPR report.'
+    dependsOn 'fortifyTranslate'
+
+    def buildId = project.hasProperty('buildId') ? project.property('buildId') : 'default_build_id'
+
+    commandLine fortifySourceAnalyzerPath, '-b', buildId, '-scan', '-f', fortifyOutputFpr
+    doLast {
+        println "Fortify SCA scan completed. Report generated at: ${fortifyOutputFpr}"
+    }
+}
