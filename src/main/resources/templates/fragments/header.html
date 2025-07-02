@@ -18,14 +18,8 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/scan-configurations">Scan Configurations</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                         <a class="nav-link" href="/fortify-settings">Fortify Settings</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/report-configurations">Report Configurations</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">

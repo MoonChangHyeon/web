@@ -42,4 +42,8 @@ public class FortifySetting {
     private boolean defaultReportShowSuppressed;
     private boolean defaultReportShowHidden;
     private String defaultReportFilterSet;
+
+    // Scan Settings
+    private String buildMemory;
+    private Long maxAnalysisFileSize;
 }

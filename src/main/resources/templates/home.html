@@ -9,6 +9,34 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mt-5">
             <h1 class="mb-0">Messages</h1>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#analysisModal" sec:authorize="hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')">
+                분석 요청
+            </button>
+        </div>
+
+        <!-- Analysis Request Modal -->
+        <div class="modal fade" id="analysisModal" tabindex="-1" aria-labelledby="analysisModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="analysisModalLabel">분석 요청</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/request-analysis" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="buildId" class="form-label">Build ID</label>
+                                <input type="text" class="form-control" id="buildId" name="buildId" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="file" class="form-label">분석 파일</label>
+                                <input type="file" class="form-control" id="file" name="file" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">요청</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <form action="/" method="get" class="mb-3">
