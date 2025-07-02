@@ -22,6 +22,11 @@
             <input type="text" class="form-control" id="reportOutputDirectory" th:field="*{reportOutputDirectory}">
             <div class="alert alert-danger" th:if="${#fields.hasErrors('reportOutputDirectory')}" th:errors="*{reportOutputDirectory}"></div>
         </div>
+        <div class="form-group">
+            <label for="fortifyUploadsDirectory">Fortify Uploads Directory</label>
+            <input type="text" class="form-control" id="fortifyUploadsDirectory" th:field="*{fortifyUploadsDirectory}">
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('fortifyUploadsDirectory')}" th:errors="*{fortifyUploadsDirectory}"></div>
+        </div>
         <button type="submit" class="btn btn-primary">Save</button>
         <hr/>
 
@@ -40,6 +45,7 @@
             <label for="maxAnalysisFileSize">Max Analysis File Size (MB)</label>
             <input type="number" class="form-control" id="maxAnalysisFileSize" th:field="*{maxAnalysisFileSize}">
         </div>
+        <button type="submit" class="btn btn-primary">Save</button>
 
         <h2>Default Report Settings</h2>
         <div class="form-group">

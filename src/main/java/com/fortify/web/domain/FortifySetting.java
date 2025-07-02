@@ -46,4 +46,6 @@ public class FortifySetting {
     // Scan Settings
     private String buildMemory;
     private Long maxAnalysisFileSize;
+
+    private String fortifyUploadsDirectory;
 }

@@ -2,6 +2,7 @@ package com.fortify.web.controller;
 
 import com.fortify.web.dto.MessageDto;
 import com.fortify.web.service.MessageService;
+import com.fortify.web.service.AnalysisService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,9 +29,11 @@ import java.io.InputStreamReader;
 public class HomeController {
 
     private final MessageService messageService;
+    private final AnalysisService analysisService;
 
-    public HomeController(MessageService messageService) {
+    public HomeController(MessageService messageService, AnalysisService analysisService) {
         this.messageService = messageService;
+        this.analysisService = analysisService;
     }
 
     @GetMapping("/")
@@ -53,6 +56,8 @@ public class HomeController {
                     .collect(Collectors.toList());
             model.addAttribute("pageNumbers", pageNumbers);
         }
+
+        model.addAttribute("analysisRequests", analysisService.getAllAnalysisRequests());
 
         return "home";
     }
