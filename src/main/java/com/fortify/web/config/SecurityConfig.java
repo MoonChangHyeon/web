@@ -37,7 +37,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/login").permitAll() // 정적 리소스 및 로그인 페이지 허용
-                .requestMatchers("/fortify-settings/**").hasRole("ADMIN")
+                .requestMatchers("/fortify-settings/**", "/admin/users/**").hasRole("ADMIN")
                 .requestMatchers("/request-analysis").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
@@ -74,6 +74,8 @@ public class SecurityConfig {
                 User user = new User();
                 user.setUsername("user");
                 user.setPassword(passwordEncoder.encode("password"));
+                user.setEmail("user@example.com");
+                user.setStatus("ACTIVE");
                 user.setRoles(Set.of(userRole));
                 userRepository.save(user);
             }
@@ -81,6 +83,8 @@ public class SecurityConfig {
                 User admin = new User();
                 admin.setUsername("admin");
                 admin.setPassword(passwordEncoder.encode("adminpass"));
+                admin.setEmail("admin@example.com");
+                admin.setStatus("ACTIVE");
                 admin.setRoles(Set.of(adminRole, userRole));
                 userRepository.save(admin);
             }

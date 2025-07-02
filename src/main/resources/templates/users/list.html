@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>User List</title>
+    <div th:replace="fragments/header :: header-meta"></div>
+</head>
+<body>
+    <div th:replace="fragments/header :: navbar"></div>
+    <div class="container mt-4">
+        <h1>유저 목록</h1>
+
+        <div th:if="${message}" class="alert alert-success mt-3" role="alert">
+            <span th:text="${message}"></span>
+        </div>
+
+        <form action="/admin/users" method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="유저명 또는 이메일 검색..." name="search" th:value="${search}">
+                <button class="btn btn-outline-secondary" type="submit">검색</button>
+            </div>
+        </form>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>유저명</th>
+                    <th>이메일</th>
+                    <th>역할</th>
+                    <th>상태</th>
+                    <th>생성일</th>
+                    <th>수정일</th>
+                    <th>액션</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${usersPage.content}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.username}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td>
+                        <span th:each="role : ${user.roles}" th:text="${role.name}" class="badge bg-info me-1"></span>
+                    </td>
+                    <td th:text="${user.status}"></td>
+                    <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${#temporals.format(user.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td>
+                        <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn btn-info btn-sm">상세</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(usersPage.content)}">
+                    <td colspan="8">유저가 없습니다.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${usersPage.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/users(page=${usersPage.number - 1}, size=${usersPage.size}, search=${search})}">Previous</a>
+                </li>
+                <li class="page-item" th:each="i : ${pageNumbers}" th:classappend="${i == usersPage.number + 1} ? 'active'">
+                    <a class="page-link" th:href="@{/admin/users(page=${i - 1}, size=${usersPage.size}, search=${search})}" th:text="${i}"></a>
+                </li>
+                <li class="page-item" th:classappend="${usersPage.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/users(page=${usersPage.number + 1}, size=${usersPage.size}, search=${search})}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</body>
+</html>

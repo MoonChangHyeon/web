@@ -21,6 +21,9 @@
                     <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                         <a class="nav-link" href="/fortify-settings">Fortify Settings</a>
                     </li>
+                    <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a class="nav-link" href="/admin/users">유저 관리</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item" sec:authorize="isAuthenticated()">

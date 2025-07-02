@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Edit User</title>
+    <div th:replace="fragments/header :: header-meta"></div>
+</head>
+<body>
+    <div th:replace="fragments/header :: navbar"></div>
+    <div class="container mt-4">
+        <h1>유저 정보 수정</h1>
+
+        <form th:object="${userEditDto}" th:action="@{/admin/users/{id}/edit(id=${userEditDto.id})}" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label">유저명</label>
+                <input type="text" class="form-control" id="username" th:field="*{username}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">이메일</label>
+                <input type="email" class="form-control" id="email" th:field="*{email}">
+                <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">상태</label>
+                <select class="form-select" id="status" th:field="*{status}">
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">역할</label>
+                <div th:each="role : ${allRoles}" class="form-check">
+                    <input type="checkbox" class="form-check-input" th:id="${'role_' + role.id}" th:name="roleIds" th:value="${role.id}" th:checked="${#sets.contains(userEditDto.roleIds, role.id)}">
+                    <label class="form-check-label" th:for="${'role_' + role.id}" th:text="${role.name}"></label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">저장</button>
+            <a th:href="@{/admin/users/{id}(id=${userEditDto.id})}" class="btn btn-secondary">취소</a>
+        </form>
+    </div>
+</body>
+</html>
