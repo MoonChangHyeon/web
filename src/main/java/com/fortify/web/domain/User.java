@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,7 +34,15 @@ public class User {
     private String username;
     private String password;
     private String email;
+    @Column(nullable = false)
     private String status; // 예: ACTIVE, INACTIVE
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) {
+            status = "ACTIVE"; // 기본값 설정
+        }
+    }
 
     @CreatedDate
     @Column(updatable = false)

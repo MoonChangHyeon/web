@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Activity Log List</title>
+    <div th:replace="fragments/header :: header-meta"></div>
+</head>
+<body>
+    <div th:replace="fragments/header :: navbar"></div>
+    <div class="container mt-4">
+        <h1>활동 로그 목록</h1>
+
+        <form action="/admin/activity-logs" method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="검색..." name="search" th:value="${search}">
+                <button class="btn btn-outline-secondary" type="submit">검색</button>
+            </div>
+        </form>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>시간</th>
+                    <th>수행자</th>
+                    <th>액션</th>
+                    <th>엔티티 타입</th>
+                    <th>엔티티 ID</th>
+                    <th>상세 정보</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="log : ${activityLogsPage.content}">
+                    <td th:text="${log.id}"></td>
+                    <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${log.actor}"></td>
+                    <td th:text="${log.action}"></td>
+                    <td th:text="${log.entityType}"></td>
+                    <td th:text="${log.entityId}"></td>
+                    <td th:text="${log.details}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(activityLogsPage.content)}">
+                    <td colspan="7">활동 로그가 없습니다.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${activityLogsPage.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/activity-logs(page=${activityLogsPage.number - 1}, size=${activityLogsPage.size}, search=${search})}">Previous</a>
+                </li>
+                <li class="page-item" th:each="i : ${pageNumbers}" th:classappend="${i == activityLogsPage.number + 1} ? 'active'">
+                    <a class="page-link" th:href="@{/admin/activity-logs(page=${i - 1}, size=${activityLogsPage.size}, search=${search})}" th:text="${i}"></a>
+                </li>
+                <li class="page-item" th:classappend="${activityLogsPage.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{/admin/activity-logs(page=${activityLogsPage.number + 1}, size=${activityLogsPage.size}, search=${search})}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</body>
+</html>

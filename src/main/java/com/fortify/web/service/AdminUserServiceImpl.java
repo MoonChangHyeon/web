@@ -22,11 +22,13 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ActivityLogService activityLogService;
 
-    public AdminUserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public AdminUserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ActivityLogService activityLogService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.activityLogService = activityLogService;
     }
 
     @Override
@@ -47,12 +49,34 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Transactional
     public User saveUser(UserEditDto userEditDto) {
         User user;
+        String action;
+        String details = "";
+
         if (userEditDto.getId() != null) {
             user = userRepository.findById(userEditDto.getId())
                     .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + userEditDto.getId()));
+            action = "UPDATE_USER";
+
+            // 변경된 필드 기록
+            if (!user.getUsername().equals(userEditDto.getUsername())) {
+                details += "username: " + user.getUsername() + " -> " + userEditDto.getUsername() + "; ";
+            }
+            if (!user.getEmail().equals(userEditDto.getEmail())) {
+                details += "email: " + user.getEmail() + " -> " + userEditDto.getEmail() + "; ";
+            }
+            if (!user.getStatus().equals(userEditDto.getStatus())) {
+                details += "status: " + user.getStatus() + " -> " + userEditDto.getStatus() + "; ";
+            }
+            // 역할 변경 로직은 복잡하므로 간단히 "roles updated"로 기록
+            if (!user.getRoles().stream().map(Role::getId).collect(Collectors.toSet()).equals(userEditDto.getRoleIds())) {
+                details += "roles updated; ";
+            }
+
         } else {
             user = new User();
             user.setPassword(passwordEncoder.encode("password")); // 새 유저 생성 시 기본 비밀번호 설정
+            action = "CREATE_USER";
+            details = "New user created.";
         }
 
         user.setUsername(userEditDto.getUsername());
@@ -70,12 +94,17 @@ public class AdminUserServiceImpl implements AdminUserService {
             user.setRoles(new HashSet<>()); // 역할이 없으면 빈 Set으로 설정
         }
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        activityLogService.logUserActivity(action, savedUser, details);
+        return savedUser;
     }
 
     @Override
     public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + id));
         userRepository.deleteById(id);
+        activityLogService.logUserActivity("DELETE_USER", user, "User deleted.");
     }
 
     @Override
@@ -83,7 +112,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     public User toggleUserStatus(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + id));
-        user.setStatus(user.getStatus().equals("ACTIVE") ? "INACTIVE" : "ACTIVE");
-        return userRepository.save(user);
+        String oldStatus = user.getStatus();
+        String newStatus = oldStatus.equals("ACTIVE") ? "INACTIVE" : "ACTIVE";
+        user.setStatus(newStatus);
+        User updatedUser = userRepository.save(user);
+        activityLogService.logUserActivity("TOGGLE_USER_STATUS", updatedUser, "Status changed from " + oldStatus + " to " + newStatus + ".");
+        return updatedUser;
     }
 }

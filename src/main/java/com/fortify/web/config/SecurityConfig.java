@@ -37,7 +37,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/login").permitAll() // 정적 리소스 및 로그인 페이지 허용
-                .requestMatchers("/fortify-settings/**", "/admin/users/**").hasRole("ADMIN")
+                .requestMatchers("/fortify-settings/**", "/admin/users/**", "/admin/activity-logs/**").hasRole("ADMIN")
                 .requestMatchers("/request-analysis").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
