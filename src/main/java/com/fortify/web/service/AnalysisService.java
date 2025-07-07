@@ -1,11 +1,10 @@
 package com.fortify.web.service;
 
-import com.fortify.web.domain.AnalysisRequest;
-import org.springframework.web.multipart.MultipartFile;
+import com.fortify.web.dto.AnalysisJobDto;
 
-import java.util.List;
+import java.util.UUID;
 
 public interface AnalysisService {
-    void requestAnalysis(String buildId, MultipartFile file) throws Exception;
-    List<AnalysisRequest> getAllAnalysisRequests();
+    AnalysisJobDto.Response createAnalysisJob(AnalysisJobDto.Request request);
+    AnalysisJobDto.StatusResponse getAnalysisJobStatus(UUID jobId);
 }

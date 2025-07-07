@@ -1,0 +1,166 @@
+{
+  "project": "Fortify SCA 분석 요청 Web",
+  "stack": {
+    "language": "Java 21",
+    "framework": "Spring Boot 3.4.3",
+    "build": "Gradle",
+    "templating": "Thymeleaf",
+    "db": "MariaDB",
+    "vcs": "Git",
+    "os": "Any (Linux/macOS/Windows)"
+  },
+  "api": {
+    "basePath": "/api/analysis",
+    "endpoints": {
+      "createAnalysis": {
+        "method": "POST",
+        "path": "/",
+        "description": "새로운 분석 Job 생성 및 비동기 실행",
+        "request": {
+          "type": "object",
+          "properties": {
+            "repoUrl": { "type": "string", "description": "Git 리포지토리 URL" },
+            "branch": { "type": "string", "description": "분석할 브랜치 (default: main)" },
+            "credentialsId": { "type": "string", "description": "저장된 Git 접근용 인증정보 ID (optional)" }
+          },
+          "required": ["repoUrl"]
+        },
+        "response": {
+          "type": "AnalysisJobDto",
+          "properties": {
+            "jobId": { "type": "string", "description": "생성된 Job UUID" },
+            "status": { "type": "string", "description": "[PENDING | RUNNING | COMPLETED | FAILED]" },
+            "createdAt": { "type": "string", "format": "date-time" }
+          }
+        }
+      },
+      "getStatus": {
+        "method": "GET",
+        "path": "/{jobId}",
+        "description": "Job 진행 상태 및 결과 URL 조회",
+        "response": {
+          "type": "AnalysisJobDto",
+          "properties": {
+            "jobId": { "type": "string" },
+            "status": { "type": "string" },
+            "startedAt": { "type": "string", "format": "date-time" },
+            "finishedAt": { "type": "string", "format": "date-time", "nullable": true },
+            "reportPdfUrl": { "type": "string", "nullable": true },
+            "reportXmlUrl": { "type": "string", "nullable": true },
+            "errorMessage": { "type": "string", "nullable": true }
+          }
+        }
+      }
+    }
+  },
+  "workflowSteps": [
+    {
+      "step": 1,
+      "name": "Workspace 준비",
+      "action": "workspaces/{jobId} 디렉터리 삭제 및 재생성"
+    },
+    {
+      "step": 2,
+      "name": "Git 클론/풀",
+      "action": "JGit 또는 CLI: git clone/pull --branch ${branch} ${repoUrl}"
+    },
+    {
+      "step": 3,
+      "name": "Fortify Clean",
+      "command": "sourceanalyzer -b ${jobId} -clean"
+    },
+    {
+      "step": 4,
+      "name": "Fortify Build(Translation)",
+      "command": "sourceanalyzer -b ${jobId} touchless gradle clean build"
+    },
+    {
+      "step": 5,
+      "name": "Fortify Scan",
+      "command": "sourceanalyzer -b ${jobId} -scan -f workspaces/{jobId}/results/{jobId}.fpr"
+    },
+    {
+      "step": 6,
+      "name": "ReportGenerator",
+      "commands": [
+        "ReportGenerator -format pdf -f workspaces/{jobId}/report/{jobId}.pdf -source workspaces/{jobId}/results/{jobId}.fpr",
+        "ReportGenerator -format xml -f workspaces/{jobId}/report/{jobId}.xml -source workspaces/{jobId}/results/{jobId}.fpr"
+      ]
+    },
+    {
+      "step": 7,
+      "name": "결과 업데이트",
+      "action": "DB Job 상태 업데이트 및 결과 파일 경로 저장"
+    }
+  ],
+  "components": [
+    {
+      "name": "AnalysisController",
+      "type": "REST Controller",
+      "description": "요청 접수 및 상태 조회 엔드포인트 제공"
+    },
+    {
+      "name": "AnalysisService",
+      "type": "Service",
+      "description": "비즈니스 로직, 비동기 실행 핸들링"
+    },
+    {
+      "name": "GitClient",
+      "type": "Component",
+      "description": "Git clone/pull 추상화 (JGit or CLI)"
+    },
+    {
+      "name": "FortifyExecutor",
+      "type": "Component",
+      "description": "sourceanalyzer 명령 래퍼"
+    },
+    {
+      "name": "ReportExecutor",
+      "type": "Component",
+      "description": "ReportGenerator 명령 래퍼"
+    },
+    {
+      "name": "WorkspaceManager",
+      "type": "Component",
+      "description": "작업 디렉터리(clean/create) 관리"
+    },
+    {
+      "name": "AsyncExecutor",
+      "type": "Component",
+      "description": "스레드풀 기반 비동기 작업 스케줄러"
+    }
+  ],
+  "entities": {
+    "AnalysisJob": {
+      "fields": {
+        "jobId": { "type": "UUID" },
+        "repoUrl": { "type": "String" },
+        "branch": { "type": "String" },
+        "status": { "type": "Enum[PENDING,RUNNING,COMPLETED,FAILED]" },
+        "createdAt": { "type": "Timestamp" },
+        "startedAt": { "type": "Timestamp", "nullable": true },
+        "finishedAt": { "type": "Timestamp", "nullable": true },
+        "reportPdfPath": { "type": "String", "nullable": true },
+        "reportXmlPath": { "type": "String", "nullable": true },
+        "errorMessage": { "type": "String", "nullable": true }
+      }
+    }
+  },
+  "configuration": {
+    "workspaceRoot": "/var/fortify/workspaces",
+    "maxConcurrentJobs": 4,
+    "git": {
+      "timeoutSeconds": 120
+    },
+    "fortify": {
+      "timeoutSeconds": 600
+    },
+    "reportGenerator": {
+      "timeoutSeconds": 300
+    }
+  },
+  "cleanupPolicy": {
+    "description": "7일 지난 워크스페이스 자동 삭제",
+    "cron": "0 0 * * *"
+  }
+}

@@ -1,31 +1,29 @@
 package com.fortify.web.controller;
 
+import com.fortify.web.dto.AnalysisJobDto;
 import com.fortify.web.service.AnalysisService;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/analysis")
+@RequiredArgsConstructor
 public class AnalysisController {
 
     private final AnalysisService analysisService;
 
-    public AnalysisController(AnalysisService analysisService) {
-        this.analysisService = analysisService;
+    @PostMapping
+    public ResponseEntity<AnalysisJobDto.Response> createAnalysis(@RequestBody AnalysisJobDto.Request request) {
+        AnalysisJobDto.Response response = analysisService.createAnalysisJob(request);
+        return ResponseEntity.accepted().body(response);
     }
 
-    @PostMapping("/request-analysis")
-    public String requestAnalysis(@RequestParam("buildId") String buildId,
-                                  @RequestParam("file") MultipartFile file,
-                                  RedirectAttributes redirectAttributes) {
-        try {
-            analysisService.requestAnalysis(buildId, file);
-            redirectAttributes.addFlashAttribute("message", "분석 요청에 성공했습니다.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "분석 요청에 실패했습니다: " + e.getMessage());
-        }
-        return "redirect:/";
+    @GetMapping("/{jobId}")
+    public ResponseEntity<AnalysisJobDto.StatusResponse> getStatus(@PathVariable UUID jobId) {
+        AnalysisJobDto.StatusResponse response = analysisService.getAnalysisJobStatus(jobId);
+        return ResponseEntity.ok(response);
     }
 }
