@@ -41,7 +41,15 @@
 - **패키지 구조:** `com.fortify.web` 아래에 `controller`, `service`, `repository`, `domain` 등 기능별로 패키지를 구성합니다.
 - **DTO 사용:** Controller와 Service 계층 간 데이터 전송 시 DTO(Data Transfer Object)를 사용하는 것을 권장합니다.
 
-## 4. DATABASES 정보
+## 4. 🌿 브랜치 전략 (Branching Strategy)
+- **`main`**: 최종 배포를 위한 가장 안정적인 브랜치입니다. 직접적인 코드 수정은 지양하고, `main_dev` 브랜치의 안정화된 버전만 병합합니다.
+- **`main_dev`**: 개발을 위한 통합 브랜치입니다. 모든 기능 브랜치의 개발이 완료되면 이 브랜치로 병합(Merge)하여 테스트를 진행합니다.
+- **기능 브랜치 (Feature Branch)**:
+  - **이름 규칙**: `feature/기능-설명`, `fix/버그-수정`, `docs/문서-작업` 등 브랜치의 목적을 명확히 나타내는 이름을 사용합니다.
+  - **생성 위치**: 항상 `main_dev` 브랜치에서 생성합니다.
+  - **병합 방식**: 개발 완료 후, `main_dev` 브랜치로 **풀 리퀘스트(Pull Request, PR)**를 생성하여 코드 리뷰를 거친 후 병합합니다.
+
+## 5. DATABASES 정보
 ```
 spring.datasource.url=jdbc:mariadb://localhost:3306/fortify_sb
 spring.datasource.username=fortify
