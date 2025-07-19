@@ -5,10 +5,27 @@ import com.fortify.web.repository.FortifySettingRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files; // Import Files
+import java.nio.file.Path;
+import java.nio.file.Paths; // Import Paths
 import java.util.List;
 import java.util.ArrayList;
-import java.nio.file.Path;
 
 @Service
 @Transactional
@@ -27,7 +44,7 @@ public class FortifySettingServiceImpl implements FortifySettingService {
             FortifySetting setting = new FortifySetting();
             setting.setFortifyScaPath("/opt/fortify/Fortify_SCA_and_Apps_23.2.0"); // 예시 기본값
             setting.setFortifyToolsPath("/opt/fortify/Fortify_SCA_and_Apps_23.2.0"); // 예시 기본값
-            setting.setReportOutputDirectory("./reports"); // 예시 기본값
+            setting.setResultOutputDirectory("./results"); // Added default value for resultOutputDirectory
             setting.setDefaultReportTemplate(""); // 기본 템플릿 없음
             setting.setDefaultReportUser(""); // 기본 사용자 없음
             setting.setDefaultReportShowRemoved(false);
@@ -55,6 +72,10 @@ public class FortifySettingServiceImpl implements FortifySettingService {
             }
         }
         calculateAndSetDerivedPaths(fortifySetting);
+        // Create resultOutputDirectory if it doesn't exist
+        if (fortifySetting.getResultOutputDirectory() != null && !fortifySetting.getResultOutputDirectory().isBlank()) {
+            createDirectoryIfNotExist(fortifySetting.getResultOutputDirectory());
+        }
         return fortifySettingRepository.save(fortifySetting);
     }
 
@@ -79,27 +100,95 @@ public class FortifySettingServiceImpl implements FortifySettingService {
         return templateFiles;
     }
 
+    @Override
+    public void updateReportTemplateRefinement(String templateFileName, String filterValue) {
+        FortifySetting setting = getFortifySetting();
+        if (setting == null || setting.getReportTemplatesDir() == null || setting.getReportTemplatesDir().isEmpty()) {
+            throw new IllegalArgumentException("Fortify settings or report templates directory not configured.");
+        }
+
+        File templateFile = new File(setting.getReportTemplatesDir(), templateFileName);
+        if (!templateFile.exists() || !templateFile.isFile()) {
+            throw new IllegalArgumentException("Report template file not found: " + templateFileName);
+        }
+
+        try {
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(templateFile);
+
+            NodeList refinementList = doc.getElementsByTagName("Refinement");
+            if (refinementList.getLength() > 0) {
+                Element refinementElement = (Element) refinementList.item(0);
+                refinementElement.setTextContent(filterValue);
+            } else {
+                // If <Refinement> tag doesn't exist, you might want to create it or log a warning.
+                // For now, let's just log a warning.
+                System.out.println("Warning: <Refinement> tag not found in " + templateFileName);
+            }
+
+            // Write the updated XML back to the file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(templateFile);
+            transformer.transform(source, result);
+
+        } catch (ParserConfigurationException | SAXException | IOException | TransformerException e) {
+            throw new RuntimeException("Error updating report template refinement: " + e.getMessage(), e);
+        }
+    }
+
+    private void createDirectoryIfNotExist(String directoryPath) {
+        try {
+            Path path = Paths.get(directoryPath);
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+                System.out.println("Directory created: " + path.toAbsolutePath());
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to create directory: " + directoryPath + " - " + e.getMessage());
+            // Optionally, throw a custom exception or handle more gracefully
+        }
+    }
+
     private void calculateAndSetDerivedPaths(FortifySetting setting) {
-        String scaPath = setting.getFortifyScaPath();
-        String toolsPath = setting.getFortifyToolsPath();
-        String reportOutputDir = setting.getReportOutputDirectory();
-
-        if (scaPath != null && !scaPath.isEmpty()) {
-            setting.setSourceanalyzerExecutable(scaPath + "/bin/sourceanalyzer");
-            setting.setScaExternalMetadataDir(scaPath + "/Core/config/ExternalMetadata");
-            setting.setScaPropertiesDir(scaPath + "/Core/config");
+        // Only update if the base path is provided. Otherwise, leave existing derived path.
+        if (setting.getFortifyScaPath() != null && !setting.getFortifyScaPath().isEmpty()) {
+            setting.setSourceanalyzerExecutable(setting.getFortifyScaPath() + "/bin/sourceanalyzer");
+            setting.setScaExternalMetadataDir(setting.getFortifyScaPath() + "/Core/config/ExternalMetadata");
+            setting.setScaPropertiesDir(setting.getFortifyScaPath() + "/Core/config");
         }
 
-        if (toolsPath != null && !toolsPath.isEmpty()) {
-            setting.setReportGeneratorExecutable(toolsPath + "/bin/ReportGenerator");
-            setting.setReportTemplatesDir(toolsPath + "/Core/config/reports");
+        if (setting.getFortifyToolsPath() != null && !setting.getFortifyToolsPath().isEmpty()) {
+            setting.setReportGeneratorExecutable(setting.getFortifyToolsPath() + "/bin/ReportGenerator");
+            String reportTemplatesDir = setting.getFortifyToolsPath() + "/Core/config/reports";
+            setting.setReportTemplatesDir(reportTemplatesDir);
+
+            java.io.File defaultReportFile = new java.io.File(reportTemplatesDir, "DefaultReportDefinition.xml");
+            if (defaultReportFile.exists() && defaultReportFile.isFile()) {
+                setting.setDefaultReportTemplate("DefaultReportDefinition.xml");
+            } else {
+                // Only clear if it was specifically "DefaultReportDefinition.xml" and the file is gone.
+                // Otherwise, leave whatever was manually set.
+                if ("DefaultReportDefinition.xml".equals(setting.getDefaultReportTemplate())) {
+                    setting.setDefaultReportTemplate("");
+                }
+            }
         }
 
-        if (reportOutputDir != null && !reportOutputDir.isBlank()) {
-            Path reportRoot = Path.of(reportOutputDir);
-            setting.setFprOutputDirectory(reportRoot.resolve("fpr").toString());
-            setting.setPdfOutputDirectory(reportRoot.resolve("pdf").toString());
-            setting.setXmlOutputDirectory(reportRoot.resolve("xml").toString());
+        // resultOutputDirectory를 기반으로 fpr, xml, pdf 출력 디렉토리 설정 및 생성
+        if (setting.getResultOutputDirectory() != null && !setting.getResultOutputDirectory().isBlank()) {
+            Path resultRoot = Paths.get(setting.getResultOutputDirectory());
+            setting.setFprOutputDirectory(resultRoot.resolve("fpr").toString());
+            setting.setPdfOutputDirectory(resultRoot.resolve("pdf").toString());
+            setting.setXmlOutputDirectory(resultRoot.resolve("xml").toString());
+
+            // 파생된 디렉토리 생성
+            createDirectoryIfNotExist(setting.getFprOutputDirectory());
+            createDirectoryIfNotExist(setting.getPdfOutputDirectory());
+            createDirectoryIfNotExist(setting.getXmlOutputDirectory());
         }
     }
 }

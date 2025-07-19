@@ -180,167 +180,35 @@
                         </div>
                         <div class="card-body">
                             <form th:object="${fortifySetting}" th:action="@{/fortify-settings}" method="post">
-                                <div class="accordion" id="fortifySettingsAccordion">
-                                    <!-- Fortify Core Settings -->
-                                    <div class="card mb-2">
-                                        <div class="card-header" id="headingCoreSettings">
-                                            <h5 class="mb-0">
-                                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseCoreSettings" aria-expanded="true" aria-controls="collapseCoreSettings">
-                                                    Fortify Core Settings
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseCoreSettings" class="collapse show" aria-labelledby="headingCoreSettings" data-parent="#fortifySettingsAccordion">
-                                            <div class="card-body">
-                                                <div class="form-group">
-                                                    <label for="fortifyScaPath">Fortify SCA Path</label>
-                                                    <input type="text" class="form-control" id="fortifyScaPath" th:field="*{fortifyScaPath}">
-                                                    <div class="text-danger" th:if="${#fields.hasErrors('fortifyScaPath')}" th:errors="*{fortifyScaPath}"></div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fortifyToolsPath">Fortify Tools Path</label>
-                                                    <input type="text" class="form-control" id="fortifyToolsPath" th:field="*{fortifyToolsPath}">
-                                                    <div class="text-danger" th:if="${#fields.hasErrors('fortifyToolsPath')}" th:errors="*{fortifyToolsPath}"></div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="reportOutputDirectory">Report Output Directory</label>
-                                                    <input type="text" class="form-control" id="reportOutputDirectory" th:field="*{reportOutputDirectory}">
-                                                    <div class="text-danger" th:if="${#fields.hasErrors('reportOutputDirectory')}" th:errors="*{reportOutputDirectory}"></div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fprOutputDirectory">FPR Output Directory</label>
-                                                    <input type="text" class="form-control" id="fprOutputDirectory" th:field="*{fprOutputDirectory}">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="xmlOutputDirectory">XML Output Directory</label>
-                                                    <input type="text" class="form-control" id="xmlOutputDirectory" th:field="*{xmlOutputDirectory}">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="pdfOutputDirectory">PDF Output Directory</label>
-                                                    <input type="text" class="form-control" id="pdfOutputDirectory" th:field="*{pdfOutputDirectory}">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="fortifyUploadsDirectory">Fortify Uploads Directory</label>
-                                                    <input type="text" class="form-control" id="fortifyUploadsDirectory" th:field="*{fortifyUploadsDirectory}">
-                                                    <div class="text-danger" th:if="${#fields.hasErrors('fortifyUploadsDirectory')}" th:errors="*{fortifyUploadsDirectory}"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="fortifyScaPath">Fortify SCA Path</label>
+                                    <input type="text" class="form-control" id="fortifyScaPath" th:field="*{fortifyScaPath}">
+                                    <div class="text-danger" th:if="${#fields.hasErrors('fortifyScaPath')}" th:errors="*{fortifyScaPath}"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="fortifyToolsPath">Fortify Tools Path</label>
+                                    <input type="text" class="form-control" id="fortifyToolsPath" th:field="*{fortifyToolsPath}">
+                                    <div class="text-danger" th:if="${#fields.hasErrors('fortifyToolsPath')}" th:errors="*{fortifyToolsPath}"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="resultOutputDirectory">결과 출력 디렉토리</label>
+                                    <input type="text" class="form-control" id="resultOutputDirectory" th:field="*{resultOutputDirectory}">
+                                    <div class="text-danger" th:if="${#fields.hasErrors('resultOutputDirectory')}" th:errors="*{resultOutputDirectory}"></div>
+                                </div>
 
-                                    <!-- Scan Settings -->
-                                    <div class="card mb-2">
-                                        <div class="card-header" id="headingScanSettings">
-                                            <h5 class="mb-0">
-                                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseScanSettings" aria-expanded="false" aria-controls="collapseScanSettings">
-                                                    Scan Settings
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseScanSettings" class="collapse" aria-labelledby="headingScanSettings" data-parent="#fortifySettingsAccordion">
-                                            <div class="card-body">
-                                                <div class="form-group">
-                                                    <label for="buildMemory">Build and Analysis Memory (-Xmx)</label>
-                                                    <select class="form-control" id="buildMemory" th:field="*{buildMemory}">
-                                                        <option value="4G">4GB</option>
-                                                        <option value="8G">8GB</option>
-                                                        <option value="12G">12GB</option>
-                                                        <option value="16G">16GB</option>
-                                                        <option value="20G">20GB</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="maxAnalysisFileSize">Max Analysis File Size (MB)</label>
-                                                    <input type="number" class="form-control" id="maxAnalysisFileSize" th:field="*{maxAnalysisFileSize}">
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div th:if="${fortifySetting.resultOutputDirectory != null and not #strings.isEmpty(fortifySetting.resultOutputDirectory)}">
+                                    <h6 class="m-0 font-weight-bold text-primary mt-4">파생된 결과 디렉토리</h6>
+                                    <div class="form-group mt-2">
+                                        <label>FPR 출력 디렉토리:</label>
+                                        <p th:text="${fortifySetting.fprOutputDirectory}" th:classappend="${fprOutputDirectoryExists ? 'text-success' : 'text-danger'}"></p>
                                     </div>
-
-                                    <!-- Default Report Settings -->
-                                    <div class="card mb-2">
-                                        <div class="card-header" id="headingReportSettings">
-                                            <h5 class="mb-0">
-                                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseReportSettings" aria-expanded="false" aria-controls="collapseReportSettings">
-                                                    Default Report Settings
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseReportSettings" class="collapse" aria-labelledby="headingReportSettings" data-parent="#fortifySettingsAccordion">
-                                            <div class="card-body">
-                                                <div class="form-group">
-                                                    <label for="defaultReportTemplate">Default Template (Optional)</label>
-                                                    <select class="form-control" id="defaultReportTemplate" th:field="*{defaultReportTemplate}">
-                                                        <option value="">-- Select Template --</option>
-                                                        <option th:each="templateFile : ${templates}" th:value="${templateFile}" th:text="${templateFile}"></option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="defaultReportUser">Default User (Optional)</label>
-                                                    <input type="text" class="form-control" id="defaultReportUser" th:field="*{defaultReportUser}">
-                                                </div>
-                                                <div class="form-group">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="defaultReportShowRemoved" th:field="*{defaultReportShowRemoved}">
-                                                        <label class="form-check-label" for="defaultReportShowRemoved">Show Removed Issues</label>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="defaultReportShowSuppressed" th:field="*{defaultReportShowSuppressed}">
-                                                        <label class="form-check-label" for="defaultReportShowSuppressed">Show Suppressed Issues</label>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" class="form-check-input" id="defaultReportShowHidden" th:field="*{defaultReportShowHidden}">
-                                                        <label class="form-check-label" for="defaultReportShowHidden">Show Hidden Issues</label>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="defaultReportFilterSet">Default Filter Set (Optional)</label>
-                                                    <input type="text" class="form-control" id="defaultReportFilterSet" th:field="*{defaultReportFilterSet}">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Derived Paths (자동 인식 경로) -->
-                                    <div class="card mb-2">
-                                        <div class="card-header" id="headingDerivedPaths">
-                                            <h5 class="mb-0">
-                                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseDerivedPaths" aria-expanded="false" aria-controls="collapseDerivedPaths">
-                                                    Derived Paths (자동 인식 경로)
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseDerivedPaths" class="collapse" aria-labelledby="headingDerivedPaths" data-parent="#fortifySettingsAccordion">
-                                            <div class="card-body">
-                                                <div class="form-group">
-                                                    <label for="sourceanalyzerExecutable">Sourceanalyzer Executable</label>
-                                                    <input type="text" class="form-control" id="sourceanalyzerExecutable" th:field="*{sourceanalyzerExecutable}" readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="scaExternalMetadataDir">SCA External Metadata Directory</label>
-                                                    <input type="text" class="form-control" id="scaExternalMetadataDir" th:field="*{scaExternalMetadataDir}" readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="scaPropertiesDir">SCA Properties Directory</label>
-                                                    <input type="text" class="form-control" id="scaPropertiesDir" th:field="*{scaPropertiesDir}" readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="reportGeneratorExecutable">ReportGenerator Executable</label>
-                                                    <input type="text" class="form-control" id="reportGeneratorExecutable" th:field="*{reportGeneratorExecutable}" readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="reportTemplatesDir">Report Templates Directory</label>
-                                                    <input type="text" class="form-control" id="reportTemplatesDir" th:field="*{reportTemplatesDir}" readonly>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="form-group">
+                                        <label>XML 출력 디렉토리:</label>
+                                        <p th:text="${fortifySetting.xmlOutputDirectory}" th:classappend="${xmlOutputDirectoryExists ? 'text-success' : 'text-danger'}"></p>
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary mt-3">Save All Settings</button>
+                                <button type="submit" class="btn btn-primary mt-3">Save Settings</button>
                             </form>
                         </div>
                     </div>

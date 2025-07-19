@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="layout(title, pageCss, content, pageScript)">
 
 <head>
     <meta charset="utf-8">
@@ -14,10 +13,10 @@
 
     <!-- Custom styles for this template-->
     <link th:href="@{/sbadmin2/css/sb-admin-2.min.css}" rel="stylesheet">
-    <th:block th:replace="~{::#page-css}"></th:block>
+    <th:block th:replace="${pageCss}"></th:block>
 </head>
 
-<body id="page-top">
+<body>
 
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -37,7 +36,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item" th:classappend="${#httpServletRequest.getRequestURI() == '/' ? 'active' : ''}">
+            <li class="nav-item">
                 <a class="nav-link" th:href="@{/}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Home</span>
@@ -53,36 +52,36 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/admin/settings') ? 'active' : ''}">
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings"
                     aria-expanded="true" aria-controls="collapseSettings">
                     <i class="fas fa-fw fa-cog"></i>
                     <span>환경설정</span>
                 </a>
-                <div id="collapseSettings" class="collapse" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/admin/settings') ? 'show' : ''}" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseSettings" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Custom Settings:</h6>
-                        <a class="collapse-item" th:href="@{/admin/settings/web-server}" th:classappend="${#httpServletRequest.getRequestURI() == '/admin/settings/web-server' ? 'active' : ''}">웹/서버 환경설정</a>
-                        <a class="collapse-item" th:href="@{/admin/settings/security-access}" th:classappend="${#httpServletRequest.getRequestURI() == '/admin/settings/security-access' ? 'active' : ''}">보안 및 접근제어</a>
-                        <a class="collapse-item" th:href="@{/admin/settings/automation-schedule}" th:classappend="${#httpServletRequest.getRequestURI() == '/admin/settings/automation-schedule' ? 'active' : ''}">자동화 및 스케줄</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/web-server}">웹/서버 환경설정</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/security-access}">보안 및 접근제어</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/automation-schedule}">자동화 및 스케줄</a>
                     </div>
                 </div>
             </li>
 
             <!-- Nav Item - Utilities Collapse Menu -->
-            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/admin/users') or #strings.startsWith(#httpServletRequest.getRequestURI(), '/admin/activity-logs') or #strings.startsWith(#httpServletRequest.getRequestURI(), '/fortify-settings') ? 'active' : ''}">
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
                     aria-expanded="true" aria-controls="collapseUtilities">
                     <i class="fas fa-fw fa-wrench"></i>
                     <span>관리</span>
                 </a>
-                <div id="collapseUtilities" class="collapse" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/admin/users') or #strings.startsWith(#httpServletRequest.getRequestURI(), '/admin/activity-logs') or #strings.startsWith(#httpServletRequest.getRequestURI(), '/fortify-settings') ? 'show' : ''}" aria-labelledby="headingUtilities"
+                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Custom Utilities:</h6>
-                        <a class="collapse-item" th:href="@{/admin/users}" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/admin/users') ? 'active' : ''}">유저 관리</a>
-                        <a class="collapse-item" th:href="@{/admin/activity-logs}" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/admin/activity-logs') ? 'active' : ''}">활동 로그</a>
-                        <a class="collapse-item" th:href="@{/fortify-settings}" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/fortify-settings') ? 'active' : ''}">Fortify Settings</a>
+                        <a class="collapse-item" th:href="@{/admin/users}">유저 관리</a>
+                        <a class="collapse-item" th:href="@{/admin/activity-logs}">활동 로그</a>
+                        <a class="collapse-item" th:href="@{/fortify-settings}">Fortify Settings</a>
                     </div>
                 </div>
             </li>
@@ -96,7 +95,7 @@
             </div>
 
             <!-- Nav Item - Charts -->
-            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/projects') ? 'active' : ''}">
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
                 <a class="nav-link" th:href="@{/projects}">
                     <i class="fas fa-fw fa-chart-area"></i>
                     <span>프로젝트 관리</span>
@@ -104,7 +103,7 @@
             </li>
 
             <!-- Nav Item - Statistics -->
-            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')" th:classappend="${#strings.startsWith(#httpServletRequest.getRequestURI(), '/statistics') ? 'active' : ''}">
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
                 <a class="nav-link" th:href="@{/statistics}">
                     <i class="fas fa-fw fa-chart-pie"></i>
                     <span>분석 통계</span>
@@ -164,7 +163,7 @@
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                <div class="container-fluid" th:fragment="content">                    
+                <div class="container-fluid" th:replace="${content}">                    
                     <!-- Page content will be injected here -->
                 </div>
                 <!-- /.container-fluid -->
@@ -227,7 +226,7 @@
 
     <!-- Page level plugins -->
     <script th:src="@{/sbadmin2/vendor/chart.js/Chart.min.js}"></script>
-    <th:block th:replace="~{::#page-script}"></th:block>
+    <th:block th:replace="${pageScript}"></th:block>
 
 </body>
 

@@ -13,15 +13,33 @@
         <!-- Content Row -->
         <div class="row">
 
-            <!-- Total Jobs Card -->
+            <!-- Total Projects Card -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    총 프로젝트 수</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${statistics.totalProjects}">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-folder fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Analysis Jobs Card -->
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    총 분석 작업</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalJobs}">0</div>
+                                    총 분석 작업 수</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${statistics.totalAnalysisJobs}">0</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-tasks fa-2x text-gray-300"></i>
@@ -31,54 +49,36 @@
                 </div>
             </div>
 
-            <!-- Successful Jobs Card -->
+            <!-- Average Analysis Duration Card -->
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-success shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    성공</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${successfulJobs}">0</div>
+                                    평균 분석 시간</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${statistics.averageAnalysisDuration}">N/A</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Failed Jobs Card -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-danger shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                    실패</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${failedJobs}">0</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-times-circle fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- In Progress Jobs Card -->
+            <!-- Placeholder for other stats if needed -->
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    진행중</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${inProgressJobs}">0</div>
+                                    기타 통계</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">0</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-spinner fa-2x text-gray-300"></i>
+                                <i class="fas fa-chart-line fa-2x text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -95,7 +95,7 @@
                     <!-- Card Header - Dropdown -->
                     <div
                         class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">분석 상태</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">분석 상태 분포</h6>
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
@@ -103,14 +103,8 @@
                             <canvas id="statusPieChart"></canvas>
                         </div>
                         <div class="mt-4 text-center small">
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-success"></i> 성공
-                            </span>
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-danger"></i> 실패
-                            </span>
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-warning"></i> 진행중
+                            <span th:each="entry : ${statistics.analysisStatusDistribution}" class="mr-2">
+                                <i class="fas fa-circle" th:classappend="${entry.key == 'COMPLETED' ? 'text-success' : (entry.key == 'FAILED' ? 'text-danger' : (entry.key == 'RUNNING' ? 'text-warning' : 'text-info'))}"></i> <span th:text="${entry.key}"></span>
                             </span>
                         </div>
                     </div>
@@ -121,11 +115,11 @@
             <div class="col-xl-8 col-lg-7">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">월별 분석 트렌드</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">분석 작업 트렌드 (지난 30일)</h6>
                     </div>
                     <div class="card-body">
                         <div class="chart-bar">
-                            <canvas id="monthlyAnalysisChart"></canvas>
+                            <canvas id="analysisTrendChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -147,11 +141,11 @@
             var statusPieChart = new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
-                    labels: ["성공", "실패", "진행중"],
+                    labels: /*[[${#maps.keySet(statistics.analysisStatusDistribution)}]]*/,
                     datasets: [{
-                        data: [/*[[${successfulJobs}]]*/, /*[[${failedJobs}]]*/, /*[[${inProgressJobs}]]*/],
-                        backgroundColor: ['#1cc88a', '#e74a3b', '#f6c23e'],
-                        hoverBackgroundColor: ['#17a673', '#e02d1b', '#f4b619'],
+                        data: /*[[${#maps.values(statistics.analysisStatusDistribution)}]]*/,
+                        backgroundColor: ['#1cc88a', '#e74a3b', '#f6c23e', '#36b9cc'], // success, danger, warning, info
+                        hoverBackgroundColor: ['#17a673', '#e02d1b', '#f4b619', '#2c9faf'],
                         hoverBorderColor: "rgba(234, 236, 244, 1)",
                     }],
                 },
@@ -175,17 +169,17 @@
             });
 
             // Bar Chart Example
-            var ctxBar = document.getElementById("monthlyAnalysisChart");
-            var monthlyAnalysisChart = new Chart(ctxBar, {
+            var ctxBar = document.getElementById("analysisTrendChart");
+            var analysisTrendChart = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: /*[[${#maps.keySet(monthlyAnalysisCounts)}]]*/, // e.g., ["JANUARY", "FEBRUARY", ...]
+                    labels: /*[[${#maps.keySet(statistics.analysisJobTrends)}]]*/,
                     datasets: [{
                         label: "분석 수",
                         backgroundColor: "#4e73df",
                         hoverBackgroundColor: "#2e59d9",
                         borderColor: "#4e73df",
-                        data: /*[[${#maps.values(monthlyAnalysisCounts)}]]*/, // e.g., [10, 20, ...]
+                        data: /*[[${#maps.values(statistics.analysisJobTrends)}]]*/,
                     }],
                 },
                 options: {
@@ -201,14 +195,14 @@
                     scales: {
                         xAxes: [{
                             time: {
-                                unit: 'month'
+                                unit: 'day' // Changed to day for daily trends
                             },
                             gridLines: {
                                 display: false,
                                 drawBorder: false
                             },
                             ticks: {
-                                maxTicksLimit: 6
+                                maxTicksLimit: 30 // Display up to 30 days
                             },
                             maxBarThickness: 25,
                         }],

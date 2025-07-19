@@ -52,6 +52,11 @@ public class AdminUserController {
         model.addAttribute("usersPage", usersPage);
         model.addAttribute("search", search);
 
+        if (!model.containsAttribute("user")) {
+            model.addAttribute("user", new UserCreateDto());
+        }
+        model.addAttribute("allRoles", roleRepository.findAll());
+
         int totalPages = usersPage.getTotalPages();
         if (totalPages > 0) {
             List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
@@ -62,19 +67,16 @@ public class AdminUserController {
         return "users/list";
     }
 
-    @GetMapping("/new")
-    public String newUserForm(Model model) {
-        model.addAttribute("user", new UserCreateDto());
-        model.addAttribute("allRoles", roleRepository.findAll());
-        return "users/form";
-    }
+    
 
     @PostMapping("/new")
     public String createUser(@Valid @ModelAttribute("user") UserCreateDto userCreateDto,
-                             BindingResult result, RedirectAttributes redirectAttributes, Model model) {
+                             BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            model.addAttribute("allRoles", roleRepository.findAll());
-            return "users/form";
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", result);
+            redirectAttributes.addFlashAttribute("user", userCreateDto);
+            redirectAttributes.addFlashAttribute("showCreateUserModal", true);
+            return "redirect:/admin/users";
         }
         adminUserService.createUser(userCreateDto);
         redirectAttributes.addFlashAttribute("message", "새 유저가 성공적으로 생성되었습니다.");

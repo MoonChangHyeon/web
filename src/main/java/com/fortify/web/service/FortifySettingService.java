@@ -8,4 +8,5 @@ public interface FortifySettingService {
     FortifySetting getFortifySetting();
     FortifySetting saveFortifySetting(FortifySetting fortifySetting);
     List<String> getReportTemplateFiles();
+    void updateReportTemplateRefinement(String templateFileName, String filterValue);
 }
