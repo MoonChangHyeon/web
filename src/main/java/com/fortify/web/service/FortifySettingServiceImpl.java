@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.nio.file.Path;
 
 @Service
 @Transactional
@@ -81,6 +82,7 @@ public class FortifySettingServiceImpl implements FortifySettingService {
     private void calculateAndSetDerivedPaths(FortifySetting setting) {
         String scaPath = setting.getFortifyScaPath();
         String toolsPath = setting.getFortifyToolsPath();
+        String reportOutputDir = setting.getReportOutputDirectory();
 
         if (scaPath != null && !scaPath.isEmpty()) {
             setting.setSourceanalyzerExecutable(scaPath + "/bin/sourceanalyzer");
@@ -91,6 +93,13 @@ public class FortifySettingServiceImpl implements FortifySettingService {
         if (toolsPath != null && !toolsPath.isEmpty()) {
             setting.setReportGeneratorExecutable(toolsPath + "/bin/ReportGenerator");
             setting.setReportTemplatesDir(toolsPath + "/Core/config/reports");
+        }
+
+        if (reportOutputDir != null && !reportOutputDir.isBlank()) {
+            Path reportRoot = Path.of(reportOutputDir);
+            setting.setFprOutputDirectory(reportRoot.resolve("fpr").toString());
+            setting.setPdfOutputDirectory(reportRoot.resolve("pdf").toString());
+            setting.setXmlOutputDirectory(reportRoot.resolve("xml").toString());
         }
     }
 }

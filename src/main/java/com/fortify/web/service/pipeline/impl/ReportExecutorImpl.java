@@ -1,8 +1,9 @@
 package com.fortify.web.service.pipeline.impl;
 
+import com.fortify.web.domain.FortifySetting;
+import com.fortify.web.service.FortifySettingService;
 import com.fortify.web.service.pipeline.ReportExecutor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -15,30 +16,46 @@ import java.nio.file.Path;
 @Service
 public class ReportExecutorImpl implements ReportExecutor {
 
-    private final String reportGeneratorPath;
+    private final FortifySettingService fortifySettingService;
 
-    public ReportExecutorImpl(@Value("${fortify.report-generator.executable.path}") String reportGeneratorPath) {
-        this.reportGeneratorPath = reportGeneratorPath;
+    public ReportExecutorImpl(FortifySettingService fortifySettingService) {
+        this.fortifySettingService = fortifySettingService;
+    }
+
+    private String getReportGeneratorPath() {
+        FortifySetting setting = fortifySettingService.getFortifySetting();
+        if (setting == null || setting.getReportGeneratorExecutable() == null) {
+            throw new IllegalStateException("Fortify ReportGenerator executable path is not configured.");
+        }
+        return setting.getReportGeneratorExecutable();
     }
 
     @Override
     public void generatePdf(String buildId, Path workspace) throws IOException, InterruptedException {
         log.info("Generating PDF report for buildId: {}", buildId);
-        Path sourceFpr = workspace.resolve("results").resolve(buildId + ".fpr");
-        Path reportPdf = workspace.resolve("report").resolve(buildId + ".pdf");
+        FortifySetting setting = fortifySettingService.getFortifySetting();
+        if (setting == null || setting.getPdfOutputDirectory() == null) {
+            throw new IllegalStateException("Fortify PDF output directory is not configured.");
+        }
+        Path sourceFpr = Path.of(setting.getFprOutputDirectory()).resolve(buildId + ".fpr");
+        Path reportPdf = Path.of(setting.getPdfOutputDirectory()).resolve(buildId + ".pdf");
         Files.createDirectories(reportPdf.getParent());
 
-        executeCommand(workspace, reportGeneratorPath, "-format", "pdf", "-f", reportPdf.toString(), "-source", sourceFpr.toString());
+        executeCommand(workspace, getReportGeneratorPath(), "-format", "pdf", "-f", reportPdf.toString(), "-source", sourceFpr.toString());
     }
 
     @Override
     public void generateXml(String buildId, Path workspace) throws IOException, InterruptedException {
         log.info("Generating XML report for buildId: {}", buildId);
-        Path sourceFpr = workspace.resolve("results").resolve(buildId + ".fpr");
-        Path reportXml = workspace.resolve("report").resolve(buildId + ".xml");
+        FortifySetting setting = fortifySettingService.getFortifySetting();
+        if (setting == null || setting.getXmlOutputDirectory() == null) {
+            throw new IllegalStateException("Fortify XML output directory is not configured.");
+        }
+        Path sourceFpr = Path.of(setting.getFprOutputDirectory()).resolve(buildId + ".fpr");
+        Path reportXml = Path.of(setting.getXmlOutputDirectory()).resolve(buildId + ".xml");
         Files.createDirectories(reportXml.getParent());
 
-        executeCommand(workspace, reportGeneratorPath, "-format", "xml", "-f", reportXml.toString(), "-source", sourceFpr.toString());
+        executeCommand(workspace, getReportGeneratorPath(), "-format", "xml", "-f", reportXml.toString(), "-source", sourceFpr.toString());
     }
 
     private void executeCommand(Path workingDirectory, String... command) throws IOException, InterruptedException {

@@ -1,0 +1,20 @@
+/* /assets/css/custom.css */
+
+/* 사이드바 메뉴 폰트 스타일 조정 */
+.sidebar-nav .hide-menu {
+    font-size: 1rem; /* 기본 폰트 크기로 설정하여 기존보다 키움 (약 16px) */
+    font-weight: 500; /* 폰트를 약간 더 두껍게 설정 */
+}
+
+/* 아코디언 화살표 오른쪽 정렬 */
+.accordion-button {
+    display: flex;
+    justify-content: space-between; /* 텍스트와 화살표를 양 끝으로 분리 */
+    align-items: center;
+}
+
+.accordion-button::after {
+    margin-left: auto; /* 화살표를 오른쪽으로 밀어냄 */
+    flex-shrink: 0; /* 화살표가 줄어들지 않도록 함 */
+}
+

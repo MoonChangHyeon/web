@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Fortify Web - 자동화 및 스케줄</title>
+
+    <!-- Custom fonts for this template-->
+    <link th:href="@{/sbadmin2/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link th:href="@{/sbadmin2/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" th:href="@{/}">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fortify Web</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Interface
+            </div>
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item active" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings"
+                    aria-expanded="true" aria-controls="collapseSettings">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>환경설정</span>
+                </a>
+                <div id="collapseSettings" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Settings:</h6>
+                        <a class="collapse-item" th:href="@{/admin/settings/web-server}">웹/서버 환경설정</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/security-access}">보안 및 접근제어</a>
+                        <a class="collapse-item active" th:href="@{/admin/settings/automation-schedule}">자동화 및 스케줄</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Nav Item - Utilities Collapse Menu -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+                    aria-expanded="true" aria-controls="collapseUtilities">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>관리</span>
+                </a>
+                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Utilities:</h6>
+                        <a class="collapse-item" th:href="@{/admin/users}">유저 관리</a>
+                        <a class="collapse-item" th:href="@{/admin/activity-logs}">활동 로그</a>
+                        <a class="collapse-item" th:href="@{/fortify-settings}">Fortify Settings</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Addons
+            </div>
+
+            <!-- Nav Item - Charts -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/projects}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>프로젝트 관리</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Statistics -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/statistics}">
+                    <i class="fas fa-fw fa-chart-pie"></i>
+                    <span>분석 통계</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small" sec:authentication="name"></span>
+                                <img class="img-profile rounded-circle"
+                                    th:src="@{/sbadmin2/img/undraw_profile.svg}">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">자동화 및 스케줄</h1>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">자동화 및 스케줄 설정</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/settings/automation-schedule}" th:object="${settings}" method="post">
+                                <div class="card-body">
+                                    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <span th:text="${message}"></span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 정기 분석 스케줄러 활성화 -->
+                                    <div class="form-group mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="enableScheduler" th:field="*{enableScheduler}">
+                                            <label class="form-check-label" for="enableScheduler">정기 분석 스케줄러 활성화</label>
+                                        </div>
+                                        <small class="form-text text-muted">정기적으로 분석/리포트/알림을 자동 실행합니다.</small>
+                                    </div>
+
+                                    <!-- 분석 실행 CRON -->
+                                    <div class="form-group mb-3 collapse" th:classappend="${settings.enableScheduler} ? 'show' : ''">
+                                        <label for="analysisCron" class="control-label">분석 실행 CRON</label>
+                                        <input type="text" class="form-control" id="analysisCron" th:field="*{analysisCron}" placeholder="예: 0 3 * * 1 (매주 월요일 03:00)">
+                                        <small class="form-text text-muted">리눅스 CRON 포맷</small>
+                                    </div>
+
+                                    <!-- 분석결과 자동 리포트 메일링 -->
+                                    <div class="form-group mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="autoReportEnabled" th:field="*{autoReportEnabled}">
+                                            <label class="form-check-label" for="autoReportEnabled">분석결과 자동 리포트 메일링</label>
+                                        </div>
+                                        <small class="form-text text-muted">분석 완료 시 PDF/XML 리포트를 지정 메일로 자동발송</small>
+                                    </div>
+
+                                    <!-- 리포트 수신자 이메일 -->
+                                    <div class="form-group mb-3 collapse" th:classappend="${settings.autoReportEnabled} ? 'show' : ''">
+                                        <label class="control-label">리포트 수신자 이메일</label>
+                                        <div id="reportReceiversContainer">
+                                            <div th:each="receiver, stat : *{reportReceivers}" class="input-group mb-2">
+                                                <input type="email" class="form-control" th:field="*{reportReceivers[__${stat.index}__].email}" placeholder="이메일 주소">
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-danger remove-receiver"><i class="fas fa-trash"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-success btn-sm" id="addReportReceiver"><i class="fas fa-plus"></i> 수신자 추가</button>
+                                    </div>
+
+                                    <!-- Webhook 연동 활성화 -->
+                                    <div class="form-group mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="webhookEnabled" th:field="*{webhookEnabled}">
+                                            <label class="form-check-label" for="webhookEnabled">Webhook 연동 활성화</label>
+                                        </div>
+                                        <small class="form-text text-muted">외부 시스템(예: Slack, Jira, 사내포탈)에 자동 알림/연동</small>
+                                    </div>
+
+                                    <!-- Webhook 대상 -->
+                                    <div class="form-group mb-3 collapse" th:classappend="${settings.webhookEnabled} ? 'show' : ''">
+                                        <label class="control-label">Webhook 대상</label>
+                                        <div id="webhookTargetsContainer">
+                                            <div th:each="target, stat : *{webhookTargets}" class="card card-info card-outline mb-2">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Webhook 종류</label>
+                                                                <select class="form-control" th:field="*{webhookTargets[__${stat.index}__].type}">
+                                                                    <option th:each="typeOption : ${webhookTypes}" th:value="${typeOption}" th:text="${typeOption}"></option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <div class="form-group">
+                                                                <label class="control-label">Webhook URL</label>
+                                                                <input type="url" class="form-control" th:field="*{webhookTargets[__${stat.index}__].url}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 d-flex align-items-center">
+                                                            <div class="form-group mb-0">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" th:field="*{webhookTargets[__${stat.index}__].enabled}">
+                                                                    <label class="form-check-label">활성화</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 d-flex align-items-center">
+                                                            <button type="button" class="btn btn-danger btn-sm remove-webhook-target"><i class="fas fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-success btn-sm" id="addWebhookTarget"><i class="fas fa-plus"></i> Webhook 대상 추가</button>
+                                    </div>
+
+                                    <!-- 환경설정/DB 자동백업 활성화 -->
+                                    <div class="form-group mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="backupEnabled" th:field="*{backupEnabled}">
+                                            <label class="form-check-label" for="backupEnabled">환경설정/DB 자동백업 활성화</label>
+                                        </div>
+                                        <small class="form-text text-muted">설정 및 DB 자동백업/복구 활성화</small>
+                                    </div>
+
+                                    <!-- 백업 스케줄(CRON) -->
+                                    <div class="form-group mb-3 collapse" th:classappend="${settings.backupEnabled} ? 'show' : ''">
+                                        <label for="backupScheduleCron" class="control-label">백업 스케줄(CRON)</label>
+                                        <input type="text" class="form-control" id="backupScheduleCron" th:field="*{backupScheduleCron}" placeholder="예: 0 4 * * * (매일 04:00)">
+                                    </div>
+
+                                    <!-- 백업 보관일수 -->
+                                    <div class="form-group mb-3 collapse" th:classappend="${settings.backupEnabled} ? 'show' : ''">
+                                        <label for="backupRetentionDays" class="control-label">백업 보관일수</label>
+                                        <input type="number" class="form-control" id="backupRetentionDays" th:field="*{backupRetentionDays}">
+                                        <small class="form-text text-muted">자동 백업파일의 최대 보관일수</small>
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary">저장</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Your Website 2021</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/sbadmin2/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery-easing/jquery.easing.min.js}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script th:src="@{/sbadmin2/js/sb-admin-2.min.js}"></script>
+
+    <script>
+        document.getElementById('enableScheduler').addEventListener('change', function() {
+            document.querySelector('#analysisCron').closest('.form-group').classList.toggle('show', this.checked);
+        });
+
+        document.getElementById('autoReportEnabled').addEventListener('change', function() {
+            document.getElementById('reportReceiversContainer').closest('.form-group').classList.toggle('show', this.checked);
+        });
+
+        document.getElementById('webhookEnabled').addEventListener('change', function() {
+            document.getElementById('webhookTargetsContainer').closest('.form-group').classList.toggle('show', this.checked);
+        });
+
+        document.getElementById('backupEnabled').addEventListener('change', function() {
+            document.getElementById('backupScheduleCron').closest('.form-group').classList.toggle('show', this.checked);
+            document.getElementById('backupRetentionDays').closest('.form-group').classList.toggle('show', this.checked);
+        });
+
+        // Initial state on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('enableScheduler').dispatchEvent(new Event('change'));
+            document.getElementById('autoReportEnabled').dispatchEvent(new Event('change'));
+            document.getElementById('webhookEnabled').dispatchEvent(new Event('change'));
+            document.getElementById('backupEnabled').dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+</html>

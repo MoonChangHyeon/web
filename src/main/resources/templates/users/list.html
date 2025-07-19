@@ -1,73 +1,315 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>User List</title>
-    <div th:replace="fragments/header :: header-meta"></div>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Fortify Web - 유저 관리</title>
+
+    <!-- Custom fonts for this template-->
+    <link th:href="@{/sbadmin2/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link th:href="@{/sbadmin2/css/sb-admin-2.min.css}" rel="stylesheet">
 </head>
-<body>
-    <div th:replace="fragments/header :: navbar"></div>
-    <div class="container mt-4">
-        <h1>유저 목록</h1>
+<body id="page-top">
 
-        <div th:if="${message}" class="alert alert-success mt-3" role="alert">
-            <span th:text="${message}"></span>
-        </div>
+    <!-- Page Wrapper -->
+    <div id="wrapper">
 
-        <form action="/admin/users" method="get" class="mb-3">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="유저명 또는 이메일 검색..." name="search" th:value="${search}">
-                <button class="btn btn-outline-secondary" type="submit">검색</button>
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" th:href="@{/}">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fortify Web</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Interface
             </div>
-        </form>
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>유저명</th>
-                    <th>이메일</th>
-                    <th>역할</th>
-                    <th>상태</th>
-                    <th>생성일</th>
-                    <th>수정일</th>
-                    <th>액션</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="user : ${usersPage.content}">
-                    <td th:text="${user.id}"></td>
-                    <td th:text="${user.username}"></td>
-                    <td th:text="${user.email}"></td>
-                    <td>
-                        <span th:each="role : ${user.roles}" th:text="${role.name}" class="badge bg-info me-1"></span>
-                    </td>
-                    <td th:text="${user.status}"></td>
-                    <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                    <td th:text="${#temporals.format(user.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                    <td>
-                        <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn btn-info btn-sm">상세</a>
-                    </td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(usersPage.content)}">
-                    <td colspan="8">유저가 없습니다.</td>
-                </tr>
-            </tbody>
-        </table>
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings"
+                    aria-expanded="true" aria-controls="collapseSettings">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>환경설정</span>
+                </a>
+                <div id="collapseSettings" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Settings:</h6>
+                        <a class="collapse-item" th:href="@{/admin/settings/web-server}">웹/서버 환경설정</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/security-access}">보안 및 접근제어</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/automation-schedule}">자동화 및 스케줄</a>
+                    </div>
+                </div>
+            </li>
 
-        <!-- Pagination -->
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${usersPage.first} ? 'disabled'">
-                    <a class="page-link" th:href="@{/admin/users(page=${usersPage.number - 1}, size=${usersPage.size}, search=${search})}">Previous</a>
-                </li>
-                <li class="page-item" th:each="i : ${pageNumbers}" th:classappend="${i == usersPage.number + 1} ? 'active'">
-                    <a class="page-link" th:href="@{/admin/users(page=${i - 1}, size=${usersPage.size}, search=${search})}" th:text="${i}"></a>
-                </li>
-                <li class="page-item" th:classappend="${usersPage.last} ? 'disabled'">
-                    <a class="page-link" th:href="@{/admin/users(page=${usersPage.number + 1}, size=${usersPage.size}, search=${search})}">Next</a>
-                </li>
-            </ul>
-        </nav>
+            <!-- Nav Item - Utilities Collapse Menu -->
+            <li class="nav-item active" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+                    aria-expanded="true" aria-controls="collapseUtilities">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>관리</span>
+                </a>
+                <div id="collapseUtilities" class="collapse show" aria-labelledby="headingUtilities"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Utilities:</h6>
+                        <a class="collapse-item active" th:href="@{/admin/users}">유저 관리</a>
+                        <a class="collapse-item" th:href="@{/admin/activity-logs}">활동 로그</a>
+                        <a class="collapse-item" th:href="@{/fortify-settings}">Fortify Settings</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Addons
+            </div>
+
+            <!-- Nav Item - Charts -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/projects}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>프로젝트 관리</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Statistics -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/statistics}">
+                    <i class="fas fa-fw fa-chart-pie"></i>
+                    <span>분석 통계</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small" sec:authentication="name"></span>
+                                <img class="img-profile rounded-circle"
+                                    th:src="@{/sbadmin2/img/undraw_profile.svg}">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">유저 관리</h1>
+
+                    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${message}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!-- DataTables Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">유저 목록</h6>
+                            <a th:href="@{/admin/users/new}" class="btn btn-primary btn-sm">새 유저 생성</a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <form action="/admin/users" method="get" class="mb-3">
+                                    <div class="input-group" style="width: 250px;">
+                                        <input type="text" name="search" class="form-control bg-light border-0 small" placeholder="유저명 또는 이메일 검색..." th:value="${search}">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>유저명</th>
+                                            <th>이메일</th>
+                                            <th>역할</th>
+                                            <th>상태</th>
+                                            <th>생성일</th>
+                                            <th>수정일</th>
+                                            <th>액션</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="user : ${usersPage.content}">
+                                            <td th:text="${user.id}"></td>
+                                            <td th:text="${user.username}"></td>
+                                            <td th:text="${user.email}"></td>
+                                            <td>
+                                                <span th:each="role : ${user.roles}" th:text="${role.name}" class="badge badge-info mr-1"></span>
+                                            </td>
+                                            <td th:text="${user.status}"></td>
+                                            <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                            <td th:text="${#temporals.format(user.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                            <td>
+                                                <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn btn-info btn-circle btn-sm"><i class="fas fa-info-circle"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(usersPage.content)}">
+                                            <td colspan="8">유저가 없습니다.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item" th:classappend="${usersPage.first} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/users(page=${usersPage.number - 1}, size=${usersPage.size}, search=${search})}" tabindex="-1" aria-disabled="true">Previous</a>
+                                    </li>
+                                    <li class="page-item" th:each="i : ${pageNumbers}" th:classappend="${i == usersPage.number + 1} ? 'active'">
+                                        <a class="page-link" th:href="@{/admin/users(page=${i - 1}, size=${usersPage.size}, search=${search})}" th:text="${i}"></a>
+                                    </li>
+                                    <li class="page-item" th:classappend="${usersPage.last} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/users(page=${usersPage.number + 1}, size=${usersPage.size}, search=${search})}">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Your Website 2021</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
     </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/sbadmin2/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery-easing/jquery.easing.min.js}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script th:src="@{/sbadmin2/js/sb-admin-2.min.js}"></script>
+
+    <!-- Page level plugins -->
+    <script th:src="@{/sbadmin2/vendor/datatables/jquery.dataTables.min.js}"></script>
+    <script th:src="@{/sbadmin2/vendor/datatables/dataTables.bootstrap4.min.js}"></script>
+
+    <!-- Page level custom scripts -->
+    <script th:src="@{/sbadmin2/js/demo/datatables-demo.js}"></script>
+
 </body>
 </html>

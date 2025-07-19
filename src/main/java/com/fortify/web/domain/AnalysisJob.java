@@ -26,6 +26,7 @@ public class AnalysisJob {
 
     private String repoUrl;
     private String branch;
+    private String projectSubdirectory;
 
     @Enumerated(EnumType.STRING)
     private AnalysisJobStatus status;

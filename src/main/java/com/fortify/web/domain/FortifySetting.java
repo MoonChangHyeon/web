@@ -26,6 +26,10 @@ public class FortifySetting {
     @NotBlank(message = "리포트 출력 디렉토리는 필수입니다.")
     private String reportOutputDirectory;
 
+    private String fprOutputDirectory;
+    private String xmlOutputDirectory;
+    private String pdfOutputDirectory;
+
     // 파생 경로 (DB에 저장하지 않고 transient로 처리하거나, 필요시 저장)
     // 여기서는 편의상 저장 필드로 추가
     private String sourceanalyzerExecutable; // bin/sourceanalyzer

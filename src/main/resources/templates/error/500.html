@@ -2,10 +2,10 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>500 Internal Server Error</title>
-    <div th:replace="fragments/header :: header-meta"></div>
+    <div th:replace="~{fragments/header :: header-meta}"></div>
 </head>
 <body>
-    <div th:replace="fragments/header :: navbar"></div>
+    <div th:replace="~{fragments/header :: navbar}"></div>
     <div class="container text-center mt-5">
         <h1 class="display-1">500</h1>
         <p class="lead">서버 내부 오류가 발생했습니다.</p>

@@ -1,0 +1,68 @@
+{
+  "feature": "WebActivityLogViewer",
+  "description": "전체 웹 활동 로그를 관리자가 조회할 수 있는 로그 메뉴입니다.",
+  "modules": [
+    {
+      "name": "ActivityLogListPage",
+      "path": "/admin/logs",
+      "description": "로그 목록을 테이블 형태로 보여주며, 다양한 필터 및 정렬 제공",
+      "features": [
+        "logId, userId, username, requestUrl, httpMethod, ipAddress, statusCode, requestTime, responseTime, durationMs 표시",
+        "날짜/사용자/URL별 검색 필터",
+        "상세 로그 보기 링크",
+        "페이지네이션 및 정렬"
+      ]
+    },
+    {
+      "name": "ActivityLogDetailPage",
+      "path": "/admin/logs/{logId}",
+      "description": "단일 로그의 상세 정보",
+      "features": [
+        "전체 HTTP 요청/응답 헤더",
+        "요청/응답 Body",
+        "요청 처리 소요 시간"
+      ]
+    }
+  ],
+  "backend": {
+    "techStack": "Spring Boot + Spring AOP or HandlerInterceptor",
+    "entity": "WebActivityLog",
+    "repository": "WebActivityLogRepository",
+    "service": "WebActivityLogService",
+    "controller": "AdminLogController"
+  },
+  "frontend": {
+    "techStack": "Thymeleaf + Bootstrap",
+    "templates": [
+      "logs/list.html",
+      "logs/detail.html"
+    ]
+  },
+  "database": {
+    "table": "web_activity_logs",
+    "columns": [
+      "logId (PK)",
+      "userId (nullable)",
+      "username",
+      "httpMethod",
+      "requestUrl",
+      "queryString",
+      "requestBody",
+      "responseStatus",
+      "ipAddress",
+      "userAgent",
+      "requestTime (ISO8601)",
+      "responseTime (ISO8601)",
+      "durationMs"
+    ]
+  },
+  "security": {
+    "access": "ROLE_ADMIN",
+    "authorization": "Spring Security 기반 접근 제어"
+  },
+  "logging": {
+    "method": "HandlerInterceptor or AOP 기반 요청 로깅",
+    "persistence": "요청 종료 후 WebActivityLog 테이블 저장",
+    "excludePaths": ["/css/**", "/js/**", "/images/**", "/favicon.ico"]
+  }
+}

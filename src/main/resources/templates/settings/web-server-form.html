@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Fortify Web - 웹/서버 환경설정</title>
+
+    <!-- Custom fonts for this template-->
+    <link th:href="@{/sbadmin2/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link th:href="@{/sbadmin2/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" th:href="@{/}">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fortify Web</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Interface
+            </div>
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item active" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings"
+                    aria-expanded="true" aria-controls="collapseSettings">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>환경설정</span>
+                </a>
+                <div id="collapseSettings" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Settings:</h6>
+                        <a class="collapse-item active" th:href="@{/admin/settings/web-server}">웹/서버 환경설정</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/security-access}">보안 및 접근제어</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/automation-schedule}">자동화 및 스케줄</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Nav Item - Utilities Collapse Menu -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+                    aria-expanded="true" aria-controls="collapseUtilities">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>관리</span>
+                </a>
+                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Utilities:</h6>
+                        <a class="collapse-item" th:href="@{/admin/users}">유저 관리</a>
+                        <a class="collapse-item" th:href="@{/admin/activity-logs}">활동 로그</a>
+                        <a class="collapse-item" th:href="@{/fortify-settings}">Fortify Settings</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Addons
+            </div>
+
+            <!-- Nav Item - Charts -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/projects}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>프로젝트 관리</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Statistics -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/statistics}">
+                    <i class="fas fa-fw fa-chart-pie"></i>
+                    <span>분석 통계</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small" sec:authentication="name"></span>
+                                <img class="img-profile rounded-circle"
+                                    th:src="@{/sbadmin2/img/undraw_profile.svg}">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">웹/서버 환경설정</h1>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">웹/서버 환경설정</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/settings/web-server}" th:object="${settings}" method="post">
+                                <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <span th:text="${message}"></span>
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <!-- 서버 타임존 -->
+                                <div class="form-group">
+                                    <label for="serverTimezone">서버 타임존</label>
+                                    <select class="form-control" id="serverTimezone" th:field="*{serverTimezone}">
+                                        <option value="Asia/Seoul">Asia/Seoul</option>
+                                        <option value="UTC">UTC</option>
+                                        <option value="Asia/Tokyo">Asia/Tokyo</option>
+                                        <option value="America/Los_Angeles">America/Los_Angeles</option>
+                                    </select>
+                                    <small class="form-text text-muted">서버 및 백엔드에서 사용하는 표준 시간대를 지정합니다.</small>
+                                </div>
+
+                                <!-- 시스템 언어 -->
+                                <div class="form-group">
+                                    <label for="serverLanguage">시스템 언어</label>
+                                    <select class="form-control" id="serverLanguage" th:field="*{serverLanguage}">
+                                        <option value="ko">ko</option>
+                                        <option value="en">en</option>
+                                        <option value="ja">ja</option>
+                                        <option value="zh">zh</option>
+                                    </select>
+                                    <small class="form-text text-muted">웹 UI 및 자동 이메일, 로그의 기본 언어를 선택합니다.</small>
+                                </div>
+
+                                <!-- DB 유형 -->
+                                <div class="form-group">
+                                    <label for="dbType">DB 유형</label>
+                                    <select class="form-control" id="dbType" th:field="*{dbType}">
+                                        <option value="MariaDB">MariaDB</option>
+                                        <option value="MySQL">MySQL</option>
+                                        <option value="PostgreSQL">PostgreSQL</option>
+                                    </select>
+                                    <small class="form-text text-muted">시스템에서 사용하는 데이터베이스 종류를 선택합니다.</small>
+                                </div>
+
+                                <!-- DB 호스트 주소 -->
+                                <div class="form-group">
+                                    <label for="dbHost">DB 호스트 주소</label>
+                                    <input type="text" class="form-control" id="dbHost" th:field="*{dbHost}" placeholder="localhost 또는 IP" required>
+                                    <small class="form-text text-muted">DB 서버의 호스트명을 입력합니다.</small>
+                                </div>
+
+                                <!-- DB 포트 -->
+                                <div class="form-group">
+                                    <label for="dbPort">DB 포트</label>
+                                    <input type="number" class="form-control" id="dbPort" th:field="*{dbPort}" required>
+                                    <small class="form-text text-muted">DB 서버의 접속 포트입니다. MariaDB 기본값: 3306</small>
+                                </div>
+
+                                <!-- DB 사용자명 -->
+                                <div class="form-group">
+                                    <label for="dbUser">DB 사용자명</label>
+                                    <input type="text" class="form-control" id="dbUser" th:field="*{dbUser}" required>
+                                    <small class="form-text text-muted">DB 접속에 사용할 계정명입니다.</small>
+                                </div>
+
+                                <!-- DB 비밀번호 -->
+                                <div class="form-group">
+                                    <label for="dbPassword">DB 비밀번호</label>
+                                    <input type="password" class="form-control" id="dbPassword" th:field="*{dbPassword}" required>
+                                    <small class="form-text text-muted">DB 접속에 사용할 비밀번호입니다.</small>
+                                </div>
+
+                                <!-- DB 이름 -->
+                                <div class="form-group">
+                                    <label for="dbName">DB 이름</label>
+                                    <input type="text" class="form-control" id="dbName" th:field="*{dbName}" required>
+                                    <small class="form-text text-muted">접속 및 운영에 사용할 데이터베이스 이름을 입력합니다.</small>
+                                </div>
+
+                                <!-- 파일 저장소 경로 -->
+                                <div class="form-group">
+                                    <label for="fileStoragePath">파일 저장소 경로</label>
+                                    <input type="text" class="form-control" id="fileStoragePath" th:field="*{fileStoragePath}" placeholder="/data/fortify/results" required>
+                                    <small class="form-text text-muted">분석결과(FPR, PDF, XML 등) 및 업로드파일 저장 위치를 지정합니다.</small>
+                                </div>
+
+                                <!-- 로그 레벨 -->
+                                <div class="form-group">
+                                    <label for="logLevel">로그 레벨</label>
+                                    <select class="form-control" id="logLevel" th:field="*{logLevel}">
+                                        <option value="ERROR">ERROR</option>
+                                        <option value="WARN">WARN</option>
+                                        <option value="INFO">INFO</option>
+                                        <option value="DEBUG">DEBUG</option>
+                                        <option value="TRACE">TRACE</option>
+                                    </select>
+                                    <small class="form-text text-muted">시스템 동작 및 오류 발생시 기록되는 로그의 상세 수준을 지정합니다.</small>
+                                </div>
+
+                                <!-- 로그 저장 경로 -->
+                                <div class="form-group">
+                                    <label for="logPath">로그 저장 경로</label>
+                                    <input type="text" class="form-control" id="logPath" th:field="*{logPath}" value="/data/fortify/logs" required>
+                                    <small class="form-text text-muted">분석/시스템 로그파일이 저장되는 위치를 지정합니다.</small>
+                                </div>
+
+                                <!-- 최대 업로드 파일 크기(MB) -->
+                                <div class="form-group">
+                                    <label for="maxFileUploadSize">최대 업로드 파일 크기(MB)</label>
+                                    <input type="number" class="form-control" id="maxFileUploadSize" th:field="*{maxFileUploadSize}">
+                                    <small class="form-text text-muted">분석 요청시 업로드할 수 있는 파일 최대 용량을 지정합니다.</small>
+                                </div>
+
+                                <!-- 메일 서버 연동 활성화 -->
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="smtpEnabled" th:field="*{smtpEnabled}" data-toggle="collapse" data-target=".smtp-fields" aria-expanded="false" aria-controls="smtpFields">
+                                        <label class="form-check-label" for="smtpEnabled">메일 서버 연동 활성화</label>
+                                    </div>
+                                    <small class="form-text text-muted">보고서 자동메일 전송 등 이메일 기능을 사용할지 설정합니다.</small>
+                                </div>
+
+                                <!-- SMTP 서버 주소 -->
+                                <div class="form-group collapse smtp-fields" th:classappend="${settings.smtpEnabled} ? 'show' : ''">
+                                    <label for="smtpHost">SMTP 서버 주소</label>
+                                    <input type="text" class="form-control" id="smtpHost" th:field="*{smtpHost}">
+                                    <small class="form-text text-muted">이메일 송신용 SMTP 서버 주소를 입력합니다.</small>
+                                </div>
+
+                                <!-- SMTP 포트 -->
+                                <div class="form-group collapse smtp-fields" th:classappend="${settings.smtpEnabled} ? 'show' : ''">
+                                    <label for="smtpPort">SMTP 포트</label>
+                                    <input type="number" class="form-control" id="smtpPort" th:field="*{smtpPort}">
+                                    <small class="form-text text-muted">SMTP 서버 포트를 입력합니다.</small>
+                                </div>
+
+                                <!-- SMTP 사용자명 -->
+                                <div class="form-group collapse smtp-fields" th:classappend="${settings.smtpEnabled} ? 'show' : ''">
+                                    <label for="smtpUser">SMTP 사용자명</label>
+                                    <input type="text" class="form-control" id="smtpUser" th:field="*{smtpUser}">
+                                </div>
+
+                                <!-- SMTP 비밀번호 -->
+                                <div class="form-group collapse smtp-fields" th:classappend="${settings.smtpEnabled} ? 'show' : ''">
+                                    <label for="smtpPassword">SMTP 비밀번호</label>
+                                    <input type="password" class="form-control" id="smtpPassword" th:field="*{smtpPassword}">
+                                </div>
+
+                                <!-- 이메일 발신자 주소 -->
+                                <div class="form-group collapse smtp-fields" th:classappend="${settings.smtpEnabled} ? 'show' : ''">
+                                    <label for="smtpSender">이메일 발신자 주소</label>
+                                    <input type="text" class="form-control" id="smtpSender" th:field="*{smtpSender}">
+                                    <small class="form-text text-muted">메일 발송에 사용되는 이메일 주소(예: noreply@company.com)</small>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">저장</button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Your Website 2021</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/sbadmin2/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery-easing/jquery.easing.min.js}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script th:src="@{/sbadmin2/js/sb-admin-2.min.js}"></script>
+
+</body>
+</html>

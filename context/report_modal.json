@@ -1,0 +1,61 @@
+{
+  "modal": "reportGenerator",
+  "description": "분석 완료 FPR에서 PDF 또는 XML 보고서 생성 모달",
+  "triggerElement": "button[id='btnGenerateReport']",
+  "ui": {
+    "modalId": "reportModal",
+    "fields": {
+      "format": {
+        "type": "radio",
+        "label": "출력 형식",
+        "options": ["pdf", "xml"],
+        "default": "pdf"
+      },
+      "template": {
+        "type": "select",
+        "label": "템플릿",
+        "options": ["Default", "DeveloperWorkbook", "ExecutiveSummary"]
+      },
+      "filterSet": {
+        "type": "select",
+        "label": "필터 세트",
+        "options": ["AllIssues", "Critical", "Custom"]
+      }
+    },
+    "buttons": [
+      { "id": "btnGenerate", "label": "생성", "action": "generateReport()" },
+      { "id": "btnClose", "label": "닫기", "action": "closeModal()" }
+    ]
+  },
+  "tools": {
+    "reportGenerator": {
+      "binary": "ReportGenerator",
+      "commandTemplate": "ReportGenerator -format ${format} -f ${reportPath} -source ${fprPath} -template ${template} -filterSet ${filterSet}"
+    }
+  },
+  "api": {
+    "generateReport": {
+      "method": "POST",
+      "url": "/api/analysisRequests/{requestId}/report",
+      "payload": {
+        "format": "pdf",
+        "template": "Default",
+        "filterSet": "AllIssues"
+      }
+    },
+    "downloadReport": {
+      "method": "GET",
+      "url": "/api/analysisRequests/{requestId}/report/download",
+      "queryParams": {
+        "format": "pdf"
+      }
+    }
+  },
+  "database": {
+    "updateFields": {
+      "reportPdfPath": "TEXT",
+      "reportXmlPath": "TEXT",
+      "reportGeneratedAt": "TIMESTAMP(ISO8601)"
+    }
+  }
+}

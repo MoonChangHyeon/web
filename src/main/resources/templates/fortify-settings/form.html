@@ -1,120 +1,408 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: header-meta"></head>
-<body>
-<nav th:replace="fragments/header :: navbar"></nav>
-<div class="container">
-    <h1>Fortify Settings</h1>
-    <form th:object="${fortifySetting}" th:action="@{/fortify-settings}" method="post">
-        <h2>Fortify Core Settings</h2>
-        <div class="form-group">
-            <label for="fortifyScaPath">Fortify SCA Path</label>
-            <input type="text" class="form-control" id="fortifyScaPath" th:field="*{fortifyScaPath}">
-            <div class="alert alert-danger" th:if="${#fields.hasErrors('fortifyScaPath')}" th:errors="*{fortifyScaPath}"></div>
-        </div>
-        <div class="form-group">
-            <label for="fortifyToolsPath">Fortify Tools Path</label>
-            <input type="text" class="form-control" id="fortifyToolsPath" th:field="*{fortifyToolsPath}">
-            <div class="alert alert-danger" th:if="${#fields.hasErrors('fortifyToolsPath')}" th:errors="*{fortifyToolsPath}"></div>
-        </div>
-        <div class="form-group">
-            <label for="reportOutputDirectory">Report Output Directory</label>
-            <input type="text" class="form-control" id="reportOutputDirectory" th:field="*{reportOutputDirectory}">
-            <div class="alert alert-danger" th:if="${#fields.hasErrors('reportOutputDirectory')}" th:errors="*{reportOutputDirectory}"></div>
-        </div>
-        <div class="form-group">
-            <label for="fortifyUploadsDirectory">Fortify Uploads Directory</label>
-            <input type="text" class="form-control" id="fortifyUploadsDirectory" th:field="*{fortifyUploadsDirectory}">
-            <div class="alert alert-danger" th:if="${#fields.hasErrors('fortifyUploadsDirectory')}" th:errors="*{fortifyUploadsDirectory}"></div>
-        </div>
-        <button type="submit" class="btn btn-primary">Save</button>
-        <hr/>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-        <h2>Scan Settings</h2>
-        <div class="form-group">
-            <label for="buildMemory">Build and Analysis Memory (-Xmx)</label>
-            <select class="form-control" id="buildMemory" th:field="*{buildMemory}">
-                <option value="4G">4GB</option>
-                <option value="8G">8GB</option>
-                <option value="12G">12GB</option>
-                <option value="16G">16GB</option>
-                <option value="20G">20GB</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="maxAnalysisFileSize">Max Analysis File Size (MB)</label>
-            <input type="number" class="form-control" id="maxAnalysisFileSize" th:field="*{maxAnalysisFileSize}">
-        </div>
-        <button type="submit" class="btn btn-primary">Save</button>
+    <title>Fortify Web - Fortify Settings</title>
 
-        <h2>Default Report Settings</h2>
-        <div class="form-group">
-            <label for="defaultReportTemplate">Default Template (Optional)</label>
-            <select class="form-control" id="defaultReportTemplate" th:field="*{defaultReportTemplate}">
-                <option value="">-- Select Template --</option>
-                <option th:each="templateFile : ${templates}" th:value="${templateFile}" th:text="${templateFile}"></option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="defaultReportUser">Default User (Optional)</label>
-            <input type="text" class="form-control" id="defaultReportUser" th:field="*{defaultReportUser}">
-        </div>
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="defaultReportShowRemoved" th:field="*{defaultReportShowRemoved}">
-            <label class="form-check-label" for="defaultReportShowRemoved">Show Removed Issues</label>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="defaultReportShowSuppressed" th:field="*{defaultReportShowSuppressed}">
-            <label class="form-check-label" for="defaultReportShowSuppressed">Show Suppressed Issues</label>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="defaultReportShowHidden" th:field="*{defaultReportShowHidden}">
-            <label class="form-check-label" for="defaultReportShowHidden">Show Hidden Issues</label>
-        </div>
-        <div class="form-group">
-            <label for="defaultReportFilterSet">Default Filter Set (Optional)</label>
-            <input type="text" class="form-control" id="defaultReportFilterSet" th:field="*{defaultReportFilterSet}">
-        </div>
-        <button type="submit" class="btn btn-primary">Save</button>
-        <hr/>
+    <!-- Custom fonts for this template-->
+    <link th:href="@{/sbadmin2/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
-        <div class="card mt-4">
-            <div class="card-header" id="headingDerivedPaths">
-                <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDerivedPaths" aria-expanded="false" aria-controls="collapseDerivedPaths">
-                        Derived Paths (자동 인식 경로)
-                    </button>
-                </h2>
+    <!-- Custom styles for this template-->
+    <link th:href="@{/sbadmin2/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" th:href="@{/}">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fortify Web</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Interface
             </div>
-            <div id="collapseDerivedPaths" class="collapse" aria-labelledby="headingDerivedPaths">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="sourceanalyzerExecutable">Sourceanalyzer Executable</label>
-                        <input type="text" class="form-control" id="sourceanalyzerExecutable" th:field="*{sourceanalyzerExecutable}" readonly>
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings"
+                    aria-expanded="true" aria-controls="collapseSettings">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>환경설정</span>
+                </a>
+                <div id="collapseSettings" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Settings:</h6>
+                        <a class="collapse-item" th:href="@{/admin/settings/web-server}">웹/서버 환경설정</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/security-access}">보안 및 접근제어</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/automation-schedule}">자동화 및 스케줄</a>
                     </div>
-                    <div class="form-group">
-                        <label for="scaExternalMetadataDir">SCA External Metadata Directory</label>
-                        <input type="text" class="form-control" id="scaExternalMetadataDir" th:field="*{scaExternalMetadataDir}" readonly>
+                </div>
+            </li>
+
+            <!-- Nav Item - Utilities Collapse Menu -->
+            <li class="nav-item active" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+                    aria-expanded="true" aria-controls="collapseUtilities">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>관리</span>
+                </a>
+                <div id="collapseUtilities" class="collapse show" aria-labelledby="headingUtilities"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Utilities:</h6>
+                        <a class="collapse-item" th:href="@{/admin/users}">유저 관리</a>
+                        <a class="collapse-item" th:href="@{/admin/activity-logs}">활동 로그</a>
+                        <a class="collapse-item active" th:href="@{/fortify-settings}">Fortify Settings</a>
                     </div>
-                    <div class="form-group">
-                        <label for="scaPropertiesDir">SCA Properties Directory</label>
-                        <input type="text" class="form-control" id="scaPropertiesDir" th:field="*{scaPropertiesDir}" readonly>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Addons
+            </div>
+
+            <!-- Nav Item - Charts -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/projects}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>프로젝트 관리</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Statistics -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/statistics}">
+                    <i class="fas fa-fw fa-chart-pie"></i>
+                    <span>분석 통계</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small" sec:authentication="name"></span>
+                                <img class="img-profile rounded-circle"
+                                    th:src="@{/sbadmin2/img/undraw_profile.svg}">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">Fortify Settings</h1>
+
+                    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        Settings saved successfully!
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label for="reportGeneratorExecutable">ReportGenerator Executable</label>
-                        <input type="text" class="form-control" id="reportGeneratorExecutable" th:field="*{reportGeneratorExecutable}" readonly>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Fortify 설정</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:object="${fortifySetting}" th:action="@{/fortify-settings}" method="post">
+                                <div class="accordion" id="fortifySettingsAccordion">
+                                    <!-- Fortify Core Settings -->
+                                    <div class="card mb-2">
+                                        <div class="card-header" id="headingCoreSettings">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseCoreSettings" aria-expanded="true" aria-controls="collapseCoreSettings">
+                                                    Fortify Core Settings
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapseCoreSettings" class="collapse show" aria-labelledby="headingCoreSettings" data-parent="#fortifySettingsAccordion">
+                                            <div class="card-body">
+                                                <div class="form-group">
+                                                    <label for="fortifyScaPath">Fortify SCA Path</label>
+                                                    <input type="text" class="form-control" id="fortifyScaPath" th:field="*{fortifyScaPath}">
+                                                    <div class="text-danger" th:if="${#fields.hasErrors('fortifyScaPath')}" th:errors="*{fortifyScaPath}"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="fortifyToolsPath">Fortify Tools Path</label>
+                                                    <input type="text" class="form-control" id="fortifyToolsPath" th:field="*{fortifyToolsPath}">
+                                                    <div class="text-danger" th:if="${#fields.hasErrors('fortifyToolsPath')}" th:errors="*{fortifyToolsPath}"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="reportOutputDirectory">Report Output Directory</label>
+                                                    <input type="text" class="form-control" id="reportOutputDirectory" th:field="*{reportOutputDirectory}">
+                                                    <div class="text-danger" th:if="${#fields.hasErrors('reportOutputDirectory')}" th:errors="*{reportOutputDirectory}"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="fprOutputDirectory">FPR Output Directory</label>
+                                                    <input type="text" class="form-control" id="fprOutputDirectory" th:field="*{fprOutputDirectory}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="xmlOutputDirectory">XML Output Directory</label>
+                                                    <input type="text" class="form-control" id="xmlOutputDirectory" th:field="*{xmlOutputDirectory}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="pdfOutputDirectory">PDF Output Directory</label>
+                                                    <input type="text" class="form-control" id="pdfOutputDirectory" th:field="*{pdfOutputDirectory}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="fortifyUploadsDirectory">Fortify Uploads Directory</label>
+                                                    <input type="text" class="form-control" id="fortifyUploadsDirectory" th:field="*{fortifyUploadsDirectory}">
+                                                    <div class="text-danger" th:if="${#fields.hasErrors('fortifyUploadsDirectory')}" th:errors="*{fortifyUploadsDirectory}"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scan Settings -->
+                                    <div class="card mb-2">
+                                        <div class="card-header" id="headingScanSettings">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseScanSettings" aria-expanded="false" aria-controls="collapseScanSettings">
+                                                    Scan Settings
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapseScanSettings" class="collapse" aria-labelledby="headingScanSettings" data-parent="#fortifySettingsAccordion">
+                                            <div class="card-body">
+                                                <div class="form-group">
+                                                    <label for="buildMemory">Build and Analysis Memory (-Xmx)</label>
+                                                    <select class="form-control" id="buildMemory" th:field="*{buildMemory}">
+                                                        <option value="4G">4GB</option>
+                                                        <option value="8G">8GB</option>
+                                                        <option value="12G">12GB</option>
+                                                        <option value="16G">16GB</option>
+                                                        <option value="20G">20GB</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="maxAnalysisFileSize">Max Analysis File Size (MB)</label>
+                                                    <input type="number" class="form-control" id="maxAnalysisFileSize" th:field="*{maxAnalysisFileSize}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Default Report Settings -->
+                                    <div class="card mb-2">
+                                        <div class="card-header" id="headingReportSettings">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseReportSettings" aria-expanded="false" aria-controls="collapseReportSettings">
+                                                    Default Report Settings
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapseReportSettings" class="collapse" aria-labelledby="headingReportSettings" data-parent="#fortifySettingsAccordion">
+                                            <div class="card-body">
+                                                <div class="form-group">
+                                                    <label for="defaultReportTemplate">Default Template (Optional)</label>
+                                                    <select class="form-control" id="defaultReportTemplate" th:field="*{defaultReportTemplate}">
+                                                        <option value="">-- Select Template --</option>
+                                                        <option th:each="templateFile : ${templates}" th:value="${templateFile}" th:text="${templateFile}"></option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="defaultReportUser">Default User (Optional)</label>
+                                                    <input type="text" class="form-control" id="defaultReportUser" th:field="*{defaultReportUser}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" id="defaultReportShowRemoved" th:field="*{defaultReportShowRemoved}">
+                                                        <label class="form-check-label" for="defaultReportShowRemoved">Show Removed Issues</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" id="defaultReportShowSuppressed" th:field="*{defaultReportShowSuppressed}">
+                                                        <label class="form-check-label" for="defaultReportShowSuppressed">Show Suppressed Issues</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input" id="defaultReportShowHidden" th:field="*{defaultReportShowHidden}">
+                                                        <label class="form-check-label" for="defaultReportShowHidden">Show Hidden Issues</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="defaultReportFilterSet">Default Filter Set (Optional)</label>
+                                                    <input type="text" class="form-control" id="defaultReportFilterSet" th:field="*{defaultReportFilterSet}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Derived Paths (자동 인식 경로) -->
+                                    <div class="card mb-2">
+                                        <div class="card-header" id="headingDerivedPaths">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseDerivedPaths" aria-expanded="false" aria-controls="collapseDerivedPaths">
+                                                    Derived Paths (자동 인식 경로)
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapseDerivedPaths" class="collapse" aria-labelledby="headingDerivedPaths" data-parent="#fortifySettingsAccordion">
+                                            <div class="card-body">
+                                                <div class="form-group">
+                                                    <label for="sourceanalyzerExecutable">Sourceanalyzer Executable</label>
+                                                    <input type="text" class="form-control" id="sourceanalyzerExecutable" th:field="*{sourceanalyzerExecutable}" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="scaExternalMetadataDir">SCA External Metadata Directory</label>
+                                                    <input type="text" class="form-control" id="scaExternalMetadataDir" th:field="*{scaExternalMetadataDir}" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="scaPropertiesDir">SCA Properties Directory</label>
+                                                    <input type="text" class="form-control" id="scaPropertiesDir" th:field="*{scaPropertiesDir}" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="reportGeneratorExecutable">ReportGenerator Executable</label>
+                                                    <input type="text" class="form-control" id="reportGeneratorExecutable" th:field="*{reportGeneratorExecutable}" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="reportTemplatesDir">Report Templates Directory</label>
+                                                    <input type="text" class="form-control" id="reportTemplatesDir" th:field="*{reportTemplatesDir}" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">Save All Settings</button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="reportTemplatesDir">Report Templates Directory</label>
-                        <input type="text" class="form-control" id="reportTemplatesDir" th:field="*{reportTemplatesDir}" readonly>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Your Website 2021</span>
                     </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Logout</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </form>
-    <div th:if="${param.success}" class="alert alert-success mt-3">
-        Settings saved successfully!
     </div>
-</div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/sbadmin2/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery-easing/jquery.easing.min.js}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script th:src="@{/sbadmin2/js/sb-admin-2.min.js}"></script>
+
 </body>
 </html>

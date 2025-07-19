@@ -1,12 +1,8 @@
 package com.fortify.web.controller;
 
-import com.fortify.web.dto.MessageDto;
-import com.fortify.web.service.MessageService;
+import com.fortify.web.dto.AnalysisJobDto;
 import com.fortify.web.service.AnalysisService;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,11 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.UUID;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,76 +22,46 @@ import java.io.InputStreamReader;
 @Controller
 public class HomeController {
 
-    private final MessageService messageService;
     private final AnalysisService analysisService;
 
-    public HomeController(MessageService messageService, AnalysisService analysisService) {
-        this.messageService = messageService;
+    public HomeController(AnalysisService analysisService) {
         this.analysisService = analysisService;
     }
 
     @GetMapping("/")
-    public String home(@RequestParam(value = "search", required = false) String search,
-                       @PageableDefault(size = 5) Pageable pageable, Model model) {
-        Page<MessageDto> messagesPage;
-        if (search != null && !search.isEmpty()) {
-            messagesPage = messageService.searchMessages(search, pageable);
-        } else {
-            messagesPage = messageService.findAllMessages(pageable);
-        }
-        model.addAttribute("messagesPage", messagesPage);
-        model.addAttribute("newMessage", new MessageDto()); // 폼을 위한 빈 객체
-        model.addAttribute("search", search); // 검색어 유지
-
-        int totalPages = messagesPage.getTotalPages();
-        if (totalPages > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
-                    .boxed()
-                    .collect(Collectors.toList());
-            model.addAttribute("pageNumbers", pageNumbers);
-        }
-
-        model.addAttribute("analysisRequests", analysisService.getAllAnalysisRequests());
-
+    public String home(Model model) {
+        model.addAttribute("analysisRequest", new AnalysisJobDto.Request()); // 분석 요청 폼을 위한 빈 객체
+        model.addAttribute("analysisJobs", analysisService.getAllAnalysisJobs()); // 모든 분석 Job 목록
         return "home";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/")
-    public String addMessage(@Valid @ModelAttribute("newMessage") MessageDto newMessage, BindingResult result, Model model) {
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/request-analysis")
+    public String requestAnalysis(@Valid @ModelAttribute("analysisRequest") AnalysisJobDto.Request request,
+                                  BindingResult result,
+                                  RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            // 오류 발생 시 현재 페이지의 메시지 목록을 다시 로드
-            Page<MessageDto> messagesPage = messageService.findAllMessages(Pageable.unpaged()); // 페이징 없이 모든 메시지 로드
-            model.addAttribute("messagesPage", messagesPage);
-            return "home";
+            redirectAttributes.addFlashAttribute("error", "분석 요청에 실패했습니다. 입력값을 확인해주세요.");
+            return "redirect:/";
         }
-        messageService.saveMessage(newMessage);
+        try {
+            analysisService.createAnalysisJob(request);
+            redirectAttributes.addFlashAttribute("message", "분석 요청이 성공적으로 접수되었습니다.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "분석 요청 중 오류가 발생했습니다: " + e.getMessage());
+        }
         return "redirect:/";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/delete/{id}")
-    public String deleteMessage(@PathVariable Long id) {
-        messageService.deleteMessage(id);
-        return "redirect:/";
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/update/{id}")
-    public String showUpdateForm(@PathVariable Long id, Model model) {
-        MessageDto message = messageService.findMessageById(id);
-        model.addAttribute("message", message);
-        return "updateForm";
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/update/{id}")
-    public String updateMessage(@PathVariable Long id, @Valid @ModelAttribute("message") MessageDto messageDto, BindingResult result) {
-        if (result.hasErrors()) {
-            return "updateForm";
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/analysis/delete/{jobId}")
+    public String deleteAnalysisJob(@PathVariable UUID jobId, RedirectAttributes redirectAttributes) {
+        try {
+            analysisService.deleteAnalysisJob(jobId);
+            redirectAttributes.addFlashAttribute("message", "분석 Job이 성공적으로 삭제되었습니다.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "분석 Job 삭제 중 오류가 발생했습니다: " + e.getMessage());
         }
-        messageDto.setId(id); // 경로 변수에서 받은 id를 messageDto 객체에 설정
-        messageService.saveMessage(messageDto);
         return "redirect:/";
     }
 

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Fortify Web - 보안 및 접근제어</title>
+
+    <!-- Custom fonts for this template-->
+    <link th:href="@{/sbadmin2/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link th:href="@{/sbadmin2/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" th:href="@{/}">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-laugh-wink"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">Fortify Web</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Interface
+            </div>
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item active" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings"
+                    aria-expanded="true" aria-controls="collapseSettings">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>환경설정</span>
+                </a>
+                <div id="collapseSettings" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Settings:</h6>
+                        <a class="collapse-item" th:href="@{/admin/settings/web-server}">웹/서버 환경설정</a>
+                        <a class="collapse-item active" th:href="@{/admin/settings/security-access}">보안 및 접근제어</a>
+                        <a class="collapse-item" th:href="@{/admin/settings/automation-schedule}">자동화 및 스케줄</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Nav Item - Utilities Collapse Menu -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+                    aria-expanded="true" aria-controls="collapseUtilities">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>관리</span>
+                </a>
+                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Custom Utilities:</h6>
+                        <a class="collapse-item" th:href="@{/admin/users}">유저 관리</a>
+                        <a class="collapse-item" th:href="@{/admin/activity-logs}">활동 로그</a>
+                        <a class="collapse-item" th:href="@{/fortify-settings}">Fortify Settings</a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Addons
+            </div>
+
+            <!-- Nav Item - Charts -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/projects}">
+                    <i class="fas fa-fw fa-chart-area"></i>
+                    <span>프로젝트 관리</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Statistics -->
+            <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')">
+                <a class="nav-link" th:href="@{/statistics}">
+                    <i class="fas fa-fw fa-chart-pie"></i>
+                    <span>분석 통계</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+        </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small" sec:authentication="name"></span>
+                                <img class="img-profile rounded-circle"
+                                    th:src="@{/sbadmin2/img/undraw_profile.svg}">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">보안 및 접근제어</h1>
+
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">보안 및 접근제어 설정</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/settings/security-access}" th:object="${settings}" method="post">
+                                <div class="card-body">
+                                    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+                                        <span th:text="${message}"></span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 관리자 허용 IP 목록 -->
+                                    <div class="form-group mb-3">
+                                        <label for="adminIps" class="control-label">관리자 허용 IP 목록</label>
+                                        <textarea class="form-control" id="adminIps" th:field="*{adminIps}" rows="3" placeholder="예: 192.168.1.0/24, 10.10.10.5"></textarea>
+                                        <small class="form-text text-muted">관리자 접속을 허용할 IP 또는 대역을 쉼표로 구분하여 입력</small>
+                                    </div>
+
+                                    <!-- 접근권한 정책 -->
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">접근권한 정책</label>
+                                        <div th:each="role : ${allRolePolicies}" class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:value="${role}" th:field="*{rolePolicy}" th:id="${'rolePolicy_' + role}">
+                                            <label class="form-check-label" th:for="${'rolePolicy_' + role}" th:text="${role}"></label>
+                                        </div>
+                                        <small class="form-text text-muted">각 사용자 역할별로 시스템/분석 결과 접근권한을 설정</small>
+                                    </div>
+
+                                    <!-- 2차 인증 방식 -->
+                                    <div class="form-group mb-3">
+                                        <label for="twoFactorAuth" class="control-label">2차 인증 방식</label>
+                                        <select class="form-control" id="twoFactorAuth" th:field="*{twoFactorAuth}">
+                                            <option th:each="option : ${twoFactorAuthOptions}" th:value="${option}" th:text="${option}"></option>
+                                        </select>
+                                        <small class="form-text text-muted">로그인 시 추가 인증방식을 적용할 수 있습니다.</small>
+                                    </div>
+
+                                    <!-- 비밀번호 정책 -->
+                                    <div class="card card-secondary card-outline">
+                                        <div class="card-header">
+                                            <h5 class="card-title">비밀번호 정책</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-group mb-3">
+                                                <label for="minLength" class="control-label">최소 길이</label>
+                                                <input type="number" class="form-control" id="minLength" th:field="*{passwordPolicy.minLength}">
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="requireUppercase" th:field="*{passwordPolicy.requireUppercase}">
+                                                    <label class="form-check-label" for="requireUppercase">대문자 필수</label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="requireNumber" th:field="*{passwordPolicy.requireNumber}">
+                                                    <label class="form-check-label" for="requireNumber">숫자 필수</label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="requireSpecial" th:field="*{passwordPolicy.requireSpecial}">
+                                                    <label class="form-check-label" for="requireSpecial">특수문자 필수</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- API Key/Token 목록 -->
+                                    <div class="form-group mb-3">
+                                        <label class="control-label">API Key/Token 목록</label>
+                                        <div id="apiTokensContainer">
+                                            <div th:each="token, stat : *{apiTokens}" class="card card-info card-outline mb-2">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label class="control-label">토큰 이름</label>
+                                                                <input type="text" class="form-control" th:field="*{apiTokens[__${stat.index}__].name}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label class="control-label">토큰 값</label>
+                                                                <input type="password" class="form-control" th:field="*{apiTokens[__${stat.index}__].value}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <label class="control-label">토큰 권한 범위</label>
+                                                                <select class="form-control" th:field="*{apiTokens[__${stat.index}__].scope}">
+                                                                    <option th:each="scopeOption : ${apiTokenScopeOptions}" th:value="${scopeOption}" th:text="${scopeOption}"></option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 d-flex align-items-center">
+                                                            <div class="form-group mb-0">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" th:field="*{apiTokens[__${stat.index}__].enabled}">
+                                                                    <label class="form-check-label">활성화</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 d-flex align-items-center">
+                                                            <button type="button" class="btn btn-danger btn-sm remove-api-token"><i class="fas fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-success btn-sm" id="addApiToken"><i class="fas fa-plus"></i> API 토큰 추가</button>
+                                    </div>
+
+                                    <!-- 감사로그 보관기간(일) -->
+                                    <div class="form-group mb-3">
+                                        <label for="auditLogRetentionDays" class="control-label">감사로그 보관기간(일)</label>
+                                        <input type="number" class="form-control" id="auditLogRetentionDays" th:field="*{auditLogRetentionDays}">
+                                        <small class="form-text text-muted">사용자 활동/로그인 등 감사 로그의 자동 삭제 보관기간</small>
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-primary">저장</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Your Website 2021</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/sbadmin2/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script th:src="@{/sbadmin2/vendor/jquery-easing/jquery.easing.min.js}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script th:src="@{/sbadmin2/js/sb-admin-2.min.js}"></script>
+
+    <script>
+        document.getElementById('addApiToken').addEventListener('click', function() {
+            const container = document.getElementById('apiTokensContainer');
+            const index = container.children.length;
+            const newApiTokenHtml = `
+                <div class="card card-info card-outline mb-2">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">토큰 이름</label>
+                                    <input type="text" class="form-control" name="apiTokens[${index}].name">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label">토큰 값</label>
+                                    <input type="password" class="form-control" name="apiTokens[${index}].value">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">토큰 권한 범위</label>
+                                    <select class="form-control" name="apiTokens[${index}].scope">
+                                        <option value="분석요청">분석요청</option>
+                                        <option value="리포트출력">리포트출력</option>
+                                        <option value="설정변경">설정변경</option>
+                                        <option value="전체">전체</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center">
+                                <div class="form-group mb-0">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="apiTokens[${index}].enabled" value="true">
+                                        <label class="form-check-label">활성화</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-api-token"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', newApiTokenHtml);
+            updateApiTokenIndices();
+        });
+
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-api-token')) {
+                event.target.closest('.card').remove();
+                updateApiTokenIndices();
+            }
+        });
+
+        function updateApiTokenIndices() {
+            const container = document.getElementById('apiTokensContainer');
+            Array.from(container.children).forEach((card, index) => {
+                card.querySelectorAll('input, select').forEach(input => {
+                    const name = input.name;
+                    if (name) {
+                        input.name = name.replace(/apiTokens\[\d+\]/, `apiTokens[${index}]`);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

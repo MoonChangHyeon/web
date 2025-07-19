@@ -1,0 +1,5 @@
+2025-07-17T03:17:49.577+09:00  WARN 18585 --- [web] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Retrograde clock change detected (housekeeper delta=29s735ms), soft-evicting connections from pool.
+2025-07-17T11:17:53.112+09:00  WARN 18585 --- [web] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Retrograde clock change detected (housekeeper delta=27s934ms), soft-evicting connections from pool.
+2025-07-17T13:43:24.941+09:00  INFO 18585 --- [web] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-17T13:43:24.947+09:00  INFO 18585 --- [web] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-07-17T13:43:24.949+09:00  INFO 18585 --- [web] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

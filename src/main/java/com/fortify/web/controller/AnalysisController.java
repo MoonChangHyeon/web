@@ -26,4 +26,6 @@ public class AnalysisController {
         AnalysisJobDto.StatusResponse response = analysisService.getAnalysisJobStatus(jobId);
         return ResponseEntity.ok(response);
     }
+
+    
 }

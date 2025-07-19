@@ -17,6 +17,7 @@ public class AnalysisJobDto {
     public static class Request {
         private String repoUrl;
         private String branch = "main";
+        private String projectSubdirectory = ".";
         private String credentialsId;
     }
 
@@ -32,7 +33,10 @@ public class AnalysisJobDto {
     @Builder
     public static class StatusResponse {
         private UUID jobId;
+        private String repoUrl;
+        private String branch;
         private AnalysisJobStatus status;
+        private LocalDateTime createdAt;
         private LocalDateTime startedAt;
         private LocalDateTime finishedAt;
         private String reportPdfUrl;

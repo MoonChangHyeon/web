@@ -2,7 +2,9 @@ package com.fortify.web.service.pipeline;
 
 import com.fortify.web.domain.AnalysisJob;
 import com.fortify.web.domain.AnalysisJobStatus;
+import com.fortify.web.domain.FortifySetting;
 import com.fortify.web.repository.AnalysisJobRepository;
+import com.fortify.web.service.FortifySettingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -21,6 +23,7 @@ public class AnalysisPipeline {
     private final GitClient gitClient;
     private final FortifyExecutor fortifyExecutor;
     private final ReportExecutor reportExecutor;
+    private final FortifySettingService fortifySettingService;
 
     @Async("taskExecutor")
     public void run(AnalysisJob job) {
@@ -53,8 +56,13 @@ public class AnalysisPipeline {
             reportExecutor.generatePdf(jobId, workspacePath);
             reportExecutor.generateXml(jobId, workspacePath);
 
-            job.setReportPdfPath(workspacePath.resolve("report").resolve(jobId + ".pdf").toString());
-            job.setReportXmlPath(workspacePath.resolve("report").resolve(jobId + ".xml").toString());
+            FortifySetting setting = fortifySettingService.getFortifySetting();
+            if (setting != null) {
+                job.setReportPdfPath(Path.of(setting.getPdfOutputDirectory()).resolve(jobId + ".pdf").toString());
+                job.setReportXmlPath(Path.of(setting.getXmlOutputDirectory()).resolve(jobId + ".xml").toString());
+            } else {
+                log.warn("Fortify settings not found. Report paths might be incorrect.");
+            }
 
             job.setStatus(AnalysisJobStatus.COMPLETED);
             job.setFinishedAt(LocalDateTime.now());

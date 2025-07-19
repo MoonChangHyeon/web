@@ -1,0 +1,66 @@
+{
+  "menu": "analysisRequest",
+  "description": "Fortify sourceanalyzer를 이용해 소스코드 정적분석 요청·관리",
+  "workflow": ["clean", "build", "scan"],
+  "tools": {
+    "sourceanalyzer": {
+      "binary": "sourceanalyzer",
+      "commandTemplates": {
+        "clean": "sourceanalyzer -b ${buildId} -clean",
+        "build": "sourceanalyzer -b ${buildId} -Xmx${maxHeap} -cp ${classpath} -source ${sourceVersion} ${sourceFiles}",
+        "scan": "sourceanalyzer -b ${buildId} -scan -f ${fprPath} -logfile ${scanLog}"
+      },
+      "defaultOptions": {
+        "maxHeap": "4G",
+        "sourceVersion": "17"
+      }
+    }
+  },
+  "api": {
+    "createRequest": {
+      "method": "POST",
+      "url": "/api/analysisRequests",
+      "payload": {
+        "projectName": "string",
+        "buildId": "string",
+        "sourcePaths": ["string"],
+        "classpath": "/path/to/libs/*",
+        "sourceVersion": "17"
+      }
+    },
+    "getStatus": {
+      "method": "GET",
+      "url": "/api/analysisRequests/{requestId}/status"
+    },
+    "getLogs": {
+      "method": "GET",
+      "url": "/api/analysisRequests/{requestId}/logs"
+    }
+  },
+  "database": {
+    "table": "analysis_requests",
+    "fields": {
+      "requestId": "UUID PRIMARY KEY",
+      "projectName": "VARCHAR(255)",
+      "buildId": "VARCHAR(255)",
+      "status": "ENUM('pending','cleaning','building','scanning','completed','failed')",
+      "fprPath": "TEXT",
+      "scanLog": "TEXT",
+      "createdAt": "TIMESTAMP(ISO8601)",
+      "updatedAt": "TIMESTAMP(ISO8601)"
+    }
+  },
+  "ui": {
+    "page": "/analysisRequests",
+    "components": [
+      "newRequestForm",
+      "requestTable",
+      "statusBadge",
+      "reportButton"
+    ]
+  },
+  "env": {
+    "fortifyHome": "/opt/fortify",
+    "path": "$fortifyHome/bin:$PATH"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "project": "FortifySCAWeb",
+  "stack": {
+    "language": "Java21",
+    "framework": "SpringBoot3.4.3",
+    "build": "Gradle",
+    "templating": "Thymeleaf",
+    "db": "MariaDB",
+    "vcs": "Git",
+    "os": "Any"
+  },
+  "api": {
+    "basePath": "/api/analysis",
+    "endpoints": {
+      "createAnalysis": {
+        "method": "POST",
+        "path": "/",
+        "request": {
+          "repoUrl": "string",
+          "branch": "string",
+          "credentialsId": "string"
+        },
+        "response": {
+          "jobId": "string",
+          "status": "pending | running | completed | failed",
+          "createdAt": "ISO8601 string"
+        }
+      },
+      "getStatus": {
+        "method": "GET",
+        "path": "/{jobId}",
+        "response": {
+          "jobId": "string",
+          "status": "pending | running | completed | failed",
+          "startedAt": "ISO8601 string",
+          "finishedAt": "ISO8601 string",
+          "reportPdfUrl": "string",
+          "reportXmlUrl": "string",
+          "errorMessage": "string"
+        }
+      }
+    }
+  },
+  "workflowSteps": [
+    {"step": 1, "name": "PrepareWorkspace", "action": "workspaces/{jobId} 삭제/생성"},
+    {"step": 2, "name": "GitClone", "action": "git clone/pull"},
+    {"step": 3, "name": "FortifyClean", "command": "sourceanalyzer -b ${jobId} -clean"},
+    {"step": 4, "name": "FortifyBuild", "command": "sourceanalyzer -b ${jobId} ..."},
+    {"step": 5, "name": "FortifyScan", "command": "sourceanalyzer -b ${jobId} -scan ..."},
+    {"step": 6, "name": "ReportGenerator", "commands": [
+      "ReportGenerator -format pdf ...",
+      "ReportGenerator -format xml ..."
+    ]},
+    {"step": 7, "name": "UpdateResult", "action": "DB 상태 및 파일 경로 업데이트"}
+  ],
+  "entities": {
+    "AnalysisJob": {
+      "fields": {
+        "jobId": "UUID",
+        "repoUrl": "string",
+        "branch": "string",
+        "status": "pending | running | completed | failed",
+        "createdAt": "ISO8601 string",
+        "startedAt": "ISO8601 string",
+        "finishedAt": "ISO8601 string",
+        "reportPdfPath": "string",
+        "reportXmlPath": "string",
+        "errorMessage": "string"
+      }
+    }
+  }
+}

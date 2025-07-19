@@ -2,6 +2,7 @@ package com.fortify.web.service;
 
 import com.fortify.web.domain.Role;
 import com.fortify.web.domain.User;
+import com.fortify.web.dto.UserCreateDto;
 import com.fortify.web.dto.UserEditDto;
 import com.fortify.web.repository.RoleRepository;
 import com.fortify.web.repository.UserRepository;
@@ -47,36 +48,53 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     @Transactional
+    public User createUser(UserCreateDto userCreateDto) {
+        User user = new User();
+        user.setUsername(userCreateDto.getUsername());
+        user.setEmail(userCreateDto.getEmail());
+        user.setPassword(passwordEncoder.encode(userCreateDto.getPassword()));
+        user.setStatus("ACTIVE"); // 새 유저는 기본적으로 ACTIVE 상태
+
+        if (userCreateDto.getRoleIds() != null) {
+            Set<Role> roles = userCreateDto.getRoleIds().stream()
+                    .map(roleRepository::findById)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toSet());
+            user.setRoles(roles);
+        } else {
+            user.setRoles(new HashSet<>()); // 역할이 없으면 빈 Set으로 설정
+        }
+
+        User savedUser = userRepository.save(user);
+        activityLogService.logUserActivity("CREATE_USER", savedUser, "New user created: " + savedUser.getUsername());
+        return savedUser;
+    }
+
+    @Override
+    @Transactional
     public User saveUser(UserEditDto userEditDto) {
         User user;
         String action;
         String details = "";
 
-        if (userEditDto.getId() != null) {
-            user = userRepository.findById(userEditDto.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + userEditDto.getId()));
-            action = "UPDATE_USER";
+        user = userRepository.findById(userEditDto.getId())
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다: " + userEditDto.getId()));
+        action = "UPDATE_USER";
 
-            // 변경된 필드 기록
-            if (!user.getUsername().equals(userEditDto.getUsername())) {
-                details += "username: " + user.getUsername() + " -> " + userEditDto.getUsername() + "; ";
-            }
-            if (!user.getEmail().equals(userEditDto.getEmail())) {
-                details += "email: " + user.getEmail() + " -> " + userEditDto.getEmail() + "; ";
-            }
-            if (!user.getStatus().equals(userEditDto.getStatus())) {
-                details += "status: " + user.getStatus() + " -> " + userEditDto.getStatus() + "; ";
-            }
-            // 역할 변경 로직은 복잡하므로 간단히 "roles updated"로 기록
-            if (!user.getRoles().stream().map(Role::getId).collect(Collectors.toSet()).equals(userEditDto.getRoleIds())) {
-                details += "roles updated; ";
-            }
-
-        } else {
-            user = new User();
-            user.setPassword(passwordEncoder.encode("password")); // 새 유저 생성 시 기본 비밀번호 설정
-            action = "CREATE_USER";
-            details = "New user created.";
+        // 변경된 필드 기록
+        if (!user.getUsername().equals(userEditDto.getUsername())) {
+            details += "username: " + user.getUsername() + " -> " + userEditDto.getUsername() + "; ";
+        }
+        if (!user.getEmail().equals(userEditDto.getEmail())) {
+            details += "email: " + user.getEmail() + " -> " + userEditDto.getEmail() + "; ";
+        }
+        if (!user.getStatus().equals(userEditDto.getStatus())) {
+            details += "status: " + user.getStatus() + " -> " + userEditDto.getStatus() + "; ";
+        }
+        // 역할 변경 로직은 복잡하므로 간단히 "roles updated"로 기록
+        if (!user.getRoles().stream().map(Role::getId).collect(Collectors.toSet()).equals(userEditDto.getRoleIds())) {
+            details += "roles updated; ";
         }
 
         user.setUsername(userEditDto.getUsername());

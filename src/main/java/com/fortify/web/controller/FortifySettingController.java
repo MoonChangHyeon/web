@@ -28,6 +28,7 @@ public class FortifySettingController {
             setting = new FortifySetting(); // 설정이 없으면 빈 객체 생성
         }
         model.addAttribute("fortifySetting", setting);
+        model.addAttribute("reportTemplates", fortifySettingService.getReportTemplateFiles());
         return "fortify-settings/form";
     }
 
